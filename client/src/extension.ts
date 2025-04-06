@@ -1,11 +1,12 @@
 import * as path from "path";
-import { workspace, ExtensionContext } from "vscode";
+import { workspace, ExtensionContext, window, OutputChannel } from "vscode";
 
 import {
   LanguageClient,
   LanguageClientOptions,
   ServerOptions,
   TransportKind,
+  Trace,
 } from "vscode-languageclient/node";
 
 let client: LanguageClient;
@@ -28,14 +29,17 @@ export function activate(context: ExtensionContext) {
     },
   };
 
+  const outputChannel: OutputChannel = window.createOutputChannel("Lowdefy Language Server");
   // Options to control the language client
   const clientOptions: LanguageClientOptions = {
     // Register the server for all documents by default
-    documentSelector: [{ scheme: "file", language: "plaintext" }],
+    documentSelector: [{ scheme: "file", language: "lowdefy" }],
     synchronize: {
       // Notify the server about file changes to '.clientrc files contained in the workspace
-      fileEvents: workspace.createFileSystemWatcher("**/.clientrc"),
+      fileEvents: workspace.createFileSystemWatcher("**/*.yaml"),
     },
+    outputChannel,
+    traceOutputChannel: outputChannel,
   };
 
   // Create the language client and start the client.
@@ -43,10 +47,12 @@ export function activate(context: ExtensionContext) {
     "lowdefy-language-server",
     "Lowdefy Language Server",
     serverOptions,
-    clientOptions
+    clientOptions,
   );
+  client.setTrace(Trace.Verbose);
 
   // Start the client. This will also launch the server
+  outputChannel.appendLine("Starting Lowdefy Language Server");
   client.start();
 }
 
