@@ -72,20 +72,20 @@ connection.onInitialized(() => {
   }
 });
 
-interface ExampleSettings {
+interface DefaultSettings {
   maxNumberOfProblems: number;
 }
 
-const defaultSettings: ExampleSettings = { maxNumberOfProblems: 1000 };
-let globalSettings: ExampleSettings = defaultSettings;
+const defaultSettings: DefaultSettings = { maxNumberOfProblems: 1000 };
+let globalSettings: DefaultSettings = defaultSettings;
 
-let documentSettings: Map<string, Thenable<ExampleSettings>> = new Map();
+let documentSettings: Map<string, Thenable<DefaultSettings>> = new Map();
 
 connection.onDidChangeConfiguration((change) => {
   if (hasConfigurationCapability) {
     documentSettings.clear();
   } else {
-    globalSettings = <ExampleSettings>(
+    globalSettings = <DefaultSettings>(
       (change.settings.lowdefyLanguageServer || defaultSettings)
     );
   }
@@ -94,7 +94,7 @@ connection.onDidChangeConfiguration((change) => {
   documents.all().forEach(validateTextDocument);
 });
 
-function getDocumentSettings(resource: string): Thenable<ExampleSettings> {
+function getDocumentSettings(resource: string): Thenable<DefaultSettings> {
   if (!hasConfigurationCapability) {
     return Promise.resolve(globalSettings);
   }
