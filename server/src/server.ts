@@ -14,6 +14,7 @@ import {
 } from "vscode-languageserver/node";
 
 import { TextDocument } from "vscode-languageserver-textdocument";
+import getCompletionSuggestions from "./utils/getCompletionSuggestions";
 
 // Create a connection for the server, using Node's IPC as a transport.
 // Also include all preview / proposed LSP features.
@@ -168,19 +169,10 @@ async function validateTextDocument(textDocument: TextDocument): Promise<void> {
 }
 
 connection.onCompletion(
-  (_textDocumentPosition: TextDocumentPositionParams): CompletionItem[] => {
-    return [
-      {
-      label: 'TypeScript',
-      kind: CompletionItemKind.Text,
-      data: 1
-    },
-    {
-      label: 'Javascript',
-      kind: CompletionItemKind.Text,
-      data: 2
-    },
-  ]
+  (params: TextDocumentPositionParams): CompletionItem[] => {
+    const document = documents.get(params.textDocument.uri);
+    if (!document) return [];
+    return getCompletionSuggestions(document.getText());
 });
 
 connection.onCompletionResolve(
