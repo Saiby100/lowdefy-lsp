@@ -115,9 +115,9 @@ documents.onDidClose(e => {
 
 documents.onDidChangeContent((change) => {
   validateTextDocument(change.document);
-  // connection.window.showInformationMessage(
-  //   "onDidChangeContent: " + change.document.uri
-  // );
+  connection.window.showInformationMessage(
+    "onDidChangeContent: " + change.document.uri
+  );
 });
 
 async function validateTextDocument(textDocument: TextDocument): Promise<void> {
@@ -169,7 +169,6 @@ async function validateTextDocument(textDocument: TextDocument): Promise<void> {
 
 connection.onCompletion(
   (_textDocumentPosition: TextDocumentPositionParams): CompletionItem[] => {
-
     return [
       {
       label: 'TypeScript',
