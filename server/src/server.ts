@@ -1,6 +1,5 @@
 import {
   CompletionItem,
-  CompletionItemKind,
   Diagnostic,
   DiagnosticSeverity,
   DidChangeConfigurationNotification,
@@ -11,10 +10,10 @@ import {
   TextDocumentSyncKind,
   TextDocuments,
   createConnection,
-} from "vscode-languageserver/node";
+} from 'vscode-languageserver/node';
 
-import { TextDocument } from "vscode-languageserver-textdocument";
-import getCompletionSuggestions from "./utils/getCompletionSuggestions";
+import { TextDocument } from 'vscode-languageserver-textdocument';
+import createGetCompletionSuggestions from './utils/getCompletionSuggestions';
 
 // Create a connection for the server, using Node's IPC as a transport.
 // Also include all preview / proposed LSP features.
@@ -26,13 +25,15 @@ const documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument);
 let hasConfigurationCapability: boolean = false;
 let hasWorkspaceFolderCapability: boolean = false;
 let hasDiagnosticRelatedInformationCapability: boolean = false;
+let getCompletionSuggestions = (text: string): CompletionItem[] => {
+  return [];
+};
 
 connection.onInitialize((params: InitializeParams) => {
   const capabilities = params.capabilities;
+  getCompletionSuggestions = createGetCompletionSuggestions();
 
-  hasConfigurationCapability = !!(
-    capabilities.workspace && !!capabilities.workspace.configuration
-  );
+  hasConfigurationCapability = !!(capabilities.workspace && !!capabilities.workspace.configuration);
   hasWorkspaceFolderCapability = !!(
     capabilities.workspace && !!capabilities.workspace.workspaceFolders
   );
@@ -46,17 +47,17 @@ connection.onInitialize((params: InitializeParams) => {
   const result: InitializeResult = {
     capabilities: {
       textDocumentSync: TextDocumentSyncKind.Incremental,
-      completionProvider:{
+      completionProvider: {
         resolveProvider: true,
-      }
+      },
     },
   };
 
   if (hasWorkspaceFolderCapability) {
     result.capabilities.workspace = {
       workspaceFolders: {
-        supported: true
-      }
+        supported: true,
+      },
     };
   }
   return result;
@@ -67,7 +68,7 @@ connection.onInitialized(() => {
     connection.client.register(DidChangeConfigurationNotification.type, undefined);
   }
   if (hasWorkspaceFolderCapability) {
-    connection.workspace.onDidChangeWorkspaceFolders(_event => {
+    connection.workspace.onDidChangeWorkspaceFolders((_event) => {
       connection.console.log('Workspace folder change event received.');
     });
   }
@@ -86,9 +87,7 @@ connection.onDidChangeConfiguration((change) => {
   if (hasConfigurationCapability) {
     documentSettings.clear();
   } else {
-    globalSettings = <DefaultSettings>(
-      (change.settings.lowdefyLanguageServer || defaultSettings)
-    );
+    globalSettings = <DefaultSettings>(change.settings.lowdefyLanguageServer || defaultSettings);
   }
 
   // Revalidate all open text documents
@@ -103,22 +102,20 @@ function getDocumentSettings(resource: string): Thenable<DefaultSettings> {
   if (!result) {
     result = connection.workspace.getConfiguration({
       scopeUri: resource,
-      section: 'lowdefyLanguageServer'
+      section: 'lowdefyLanguageServer',
     });
     documentSettings.set(resource, result);
   }
   return result;
 }
 
-documents.onDidClose(e => {
+documents.onDidClose((e) => {
   documentSettings.delete(e.document.uri);
 });
 
 documents.onDidChangeContent((change) => {
   validateTextDocument(change.document);
-  connection.window.showInformationMessage(
-    "onDidChangeContent: " + change.document.uri
-  );
+  connection.window.showInformationMessage('onDidChangeContent: ' + change.document.uri);
 });
 
 async function validateTextDocument(textDocument: TextDocument): Promise<void> {
@@ -138,27 +135,27 @@ async function validateTextDocument(textDocument: TextDocument): Promise<void> {
       severity: DiagnosticSeverity.Warning,
       range: {
         start: textDocument.positionAt(m.index),
-        end: textDocument.positionAt(m.index + m[0].length)
+        end: textDocument.positionAt(m.index + m[0].length),
       },
       message: `${m[0]} is all uppercase.`,
-      source: 'ex'
+      source: 'ex',
     };
     if (hasDiagnosticRelatedInformationCapability) {
       diagnostic.relatedInformation = [
         {
           location: {
             uri: textDocument.uri,
-            range: Object.assign({}, diagnostic.range)
+            range: Object.assign({}, diagnostic.range),
           },
-          message: 'Spelling matters'
+          message: 'Spelling matters',
         },
         {
           location: {
             uri: textDocument.uri,
-            range: Object.assign({}, diagnostic.range)
+            range: Object.assign({}, diagnostic.range),
           },
-          message: 'Particularly for names'
-        }
+          message: 'Particularly for names',
+        },
       ];
     }
     diagnostics.push(diagnostic);
@@ -168,25 +165,26 @@ async function validateTextDocument(textDocument: TextDocument): Promise<void> {
   connection.sendDiagnostics({ uri: textDocument.uri, diagnostics });
 }
 
-connection.onCompletion(
-  (params: TextDocumentPositionParams): CompletionItem[] => {
-    const document = documents.get(params.textDocument.uri);
-    if (!document) return [];
-    return getCompletionSuggestions(document.getText());
+connection.onCompletion((params: TextDocumentPositionParams): CompletionItem[] => {
+  const document = documents.get(params.textDocument.uri);
+  if (!document) return [];
+  // connection.console.log('Document Text:');
+  // connection.console.log(document.getText());
+  connection.console.log('This is added NOW');
+
+  return getCompletionSuggestions(document.getText());
 });
 
-connection.onCompletionResolve(
-  (item: CompletionItem): CompletionItem => {
-    if (item.data === 1) {
-      item.detail = 'TypeScript details';
-      item.documentation = 'TypeScript documentation';
-    } else if (item.data === 2) {
-      item.detail = 'JavaScript details';
-      item.documentation = 'JavaScript documentation';
-    }
-    return item;
+connection.onCompletionResolve((item: CompletionItem): CompletionItem => {
+  if (item.data === 1) {
+    item.detail = 'TypeScript details';
+    item.documentation = 'TypeScript documentation';
+  } else if (item.data === 2) {
+    item.detail = 'JavaScript details';
+    item.documentation = 'JavaScript documentation';
   }
-);
+  return item;
+});
 
 // Make the text document manager listen on the connection
 // for open, change and close text document events

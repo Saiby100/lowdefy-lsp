@@ -1,0 +1,82 @@
+{
+  "AWSS3": {
+    "type": "AWSS3",
+    "category": "Connection",
+    "description": "AWS S3 is a file or data storage solution, provided by Amazon Web Services. S3 does not work like a traditional file system, data is stored as objects in a collection of objects called a bucket.\nObjects can be read from S3 and stored in S3 using web requests. These objects can be public or private."
+  },
+  "AmazonRedshift": {
+    "type": "AmazonRedshift",
+    "category": "Connection",
+    "description": "The [Knex](/Knex) connection can be used to connect to a [Amazon Redshift](https://aws.amazon.com/redshift) database.\n"
+  },
+  "AxiosHttp": {
+    "type": "AxiosHttp",
+    "category": "Connection",
+    "description": "The `AxiosHttp` connection is used to connect to APIs and web servers using HTTP or HTTPS."
+  },
+  "Elasticsearch": {
+    "type": "Elasticsearch",
+    "category": "Connection",
+    "description": "## Connections\n\nConnection types:\n  - Elasticsearch\n\n### Elasticsearch\n\n[`Elasticsearch`](https://www.elastic.co/elasticsearch/) is a distributed, RESTful search and analytics engine capable of addressing a growing number of use cases. As the heart of the Elastic Stack, it centrally stores your data for lightning fast search, fine‑tuned relevancy, and powerful analytics that scale with ease."
+  },
+  "GoogleSheet": {
+    "type": "GoogleSheet",
+    "category": "Connection",
+    "description": "## Connections\n\nConnection types:\n  - GoogleSheet\n\n### GoogleSheet\n\nThe `GoogleSheet` connection offers the flexibility to connect to Google Sheets using either an API key or a service account."
+  },
+  "Knex": {
+    "type": "Knex",
+    "category": "Connection",
+    "description": "[`Knex.js`](http://knexjs.org) is a SQL query builder that can be used to connect to [PostgreSQL](/PostgreSQL), [MS SQL Server](/MSSQL), [MySQL](/MySQL), [MariaDB](/MariaDB), [SQLite](/SQLite), [Oracle](/Oracle), and [Amazon Redshift](/AmazonRedshift) databases.\n\nThe Knex connection can be used to execute raw SQL queries using the `KnexRaw` requests, or the Knex query builder can be used with the `KnexBuilder` request.\n\nFor more details on specific databases, see the database documentation:\n"
+  },
+  "MSSQL": {
+    "type": "MSSQL",
+    "category": "Connection",
+    "description": "The [Knex](/Knex) connection can be used to connect to [Microsoft SQL Server](https://www.microsoft.com/en-us/sql-server/sql-server-2019).\n"
+  },
+  "MariaDB": {
+    "type": "MariaDB",
+    "category": "Connection",
+    "description": "The [Knex](/Knex) connection can be used to connect to a [MariaDB](https://www.mysql.com) database. To connect to a MariaDB database, use the `mysql` client.\n"
+  },
+  "MongoDB": {
+    "type": "MongoDB",
+    "category": "Connection",
+    "description": "MongoDB is a NoSQL database that stores JSON-like documents. These documents are stored in collections, which are like database tables. The fields inside these document can differ from document to document, but generally they are all more or less the same."
+  },
+  "MySQL": {
+    "type": "MySQL",
+    "category": "Connection",
+    "description": "The [Knex](/Knex) connection can be used to connect to a [MySQL](https://www.mysql.com) database.\n"
+  },
+  "OracleDB": {
+    "type": "OracleDB",
+    "category": "Connection",
+    "description": "The [Knex](/Knex) connection can be used to connect to a [Oracle Database](https://www.oracle.com/database/).\n"
+  },
+  "PostgreSQL": {
+    "type": "PostgreSQL",
+    "category": "Connection",
+    "description": "The [Knex](/Knex) connection can be used to connect to a [PostgreSQL](https://www.postgresql.org) database.\n"
+  },
+  "Redis": {
+    "type": "Redis",
+    "category": "Connection",
+    "description": "[`Redis`](http://redis.io/) is an open-source, in-memory key-value data structure store. Redis offers a set of versatile in-memory data structures (strings, hashes, lists, sets, sorted sets with range queries, bitmaps, hyperloglogs, geospatial indexes, and streams) that allow the creation of many custom applications. Key use cases for Redis include database, caching, session management and message broker.\n\nLowdefy integrates with Redis using the one of the recommended [Node.js clients (node-redis)](https://github.com/redis/node-redis).\n"
+  },
+  "SQLite": {
+    "type": "SQLite",
+    "category": "Connection",
+    "description": "The [Knex](/Knex) connection can be used to connect to a [SQLite](https://www.sqlite.org) database.\n"
+  },
+  "SendGridMail": {
+    "type": "SendGridMail",
+    "category": "Connection",
+    "description": "[SendGrid](https://sendgrid.com/) is a popular email API provider which allows you to easily setup a email service. The `SendGridMail` connection can be used to connect to an existing SendGrid API account."
+  },
+  "Stripe": {
+    "type": "Stripe",
+    "category": "Connection",
+    "description": "## Connections\n\nConnection types:\n  - Stripe\n\n### Stripe\n\n[Stripe](https://stripe.com/) is a popular payment provider which allows you to accept payments, send payouts, and manage your business online.\nThe `Stripe` connector uses the official [Node.js client from Stripe](https://github.com/stripe/stripe-node)."
+  }
+}
