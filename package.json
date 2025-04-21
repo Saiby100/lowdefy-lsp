@@ -18,12 +18,12 @@
       "type": "object",
       "title": "Lowdefy LSP configuration",
       "properties": {
-          "lowdefyLanguageServer.maxNumberOfProblems": {
-              "scope": "resource",
-              "type": "number",
-              "default": 100,
-              "description": "Controls the maximum number of problems produced by the server."
-          }
+        "lowdefyLanguageServer.maxNumberOfProblems": {
+          "scope": "resource",
+          "type": "number",
+          "default": 100,
+          "description": "Controls the maximum number of problems produced by the server."
+        }
       }
     }
   },
@@ -36,5 +36,6 @@
   "devDependencies": {
     "@types/node": "^20.5.7",
     "typescript": "^5.2.2"
-  }
+  },
+  "dependencies": {}
 }
