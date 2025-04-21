@@ -14,6 +14,8 @@ import {
 
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import createGetCompletionSuggestions from './utils/getCompletionSuggestions';
+import { parseDocument } from 'yaml';
+import { getNthParentKey } from './utils/getNthParent';
 
 // Create a connection for the server, using Node's IPC as a transport.
 // Also include all preview / proposed LSP features.
@@ -168,9 +170,22 @@ async function validateTextDocument(textDocument: TextDocument): Promise<void> {
 connection.onCompletion((params: TextDocumentPositionParams): CompletionItem[] => {
   const document = documents.get(params.textDocument.uri);
   if (!document) return [];
-  // connection.console.log('Document Text:');
-  // connection.console.log(document.getText());
-  connection.console.log('This is added NOW');
+
+  const pos = params.position;
+  const parsedDoc = parseDocument(document.getText());
+
+  const lines = document.getText().split('\n');
+  let offset = 0;
+  for (let i = 0; i < pos.line; i++) {
+    offset += lines[i].length + 1;
+  }
+  offset += pos.character;
+  // connection.console.log('parsedDocument');
+  // connection.console.log(JSON.stringify(parsedDoc?.contents || null));
+  // connection.console.log(`pos.line ${pos.line}`);
+  // connection.console.log(`pos.character ${pos.character}`);
+  // connection.console.log(`Offset ${offset}`);
+  connection.console.log(`parent key ${getNthParentKey(document.getText(), params.position, 1)}`);
 
   return getCompletionSuggestions(document.getText());
 });

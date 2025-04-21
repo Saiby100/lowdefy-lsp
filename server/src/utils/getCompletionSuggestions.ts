@@ -115,13 +115,13 @@ function getFormattedOperators(): CompletionItem[] {
 }
 
 function createGetCompletionSuggestions() {
-  const actions = getFormattedActions();
-  const connections = getFormattedConnections();
-  const containers = getFormattedContainers();
-  const displays = getFormattedDisplays();
-  const inputs = getFormattedInputs();
-  const lists = getFormattedLists();
-  const operators = getFormattedOperators();
+  const actions = getFormattedActions(); // parent is `type` and parent.parent.parent is `events`
+  const connections = getFormattedConnections(); // parent is `connection`
+  const containers = getFormattedContainers(); // parent is `type` and parent.parent is `blocks`
+  const displays = getFormattedDisplays(); // parent is `type` and parent.parent is `blocks`
+  const inputs = getFormattedInputs(); // parent is `type` and parent.parent is `blocks`
+  const lists = getFormattedLists(); // parent is `type` and parent.parent is `blocks`
+  const operators = getFormattedOperators(); // developer typed `_`
 
   return (text: string): CompletionItem[] => {
     // Suggest block types if parent is `type`.
