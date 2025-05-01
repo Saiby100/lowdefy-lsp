@@ -16,29 +16,33 @@ function posToOffset(pos: Position, text: string): number {
 /**
  * Recursively finds the path of nodes leading to the current offset.
  */
-function findNodePath(offset: number, node: Node, currentPath: Node[]): Node[] {
+function findNodePath(offset: number, node: Node, currentPath: (Node | Pair)[]): (Node | Pair)[] {
   if (!node || !node.range) return currentPath;
   const [start, , end] = node.range;
 
   if (offset < start || offset > end) return currentPath;
 
-  const path = [...currentPath, node];
+  let path = [...currentPath];
 
   if (isMap(node) || isSeq(node)) {
     for (const item of node.items) {
       if (item && typeof item === 'object') {
         if ('key' in item && 'value' in item) {
-          // it's a Pair
           const pair = item as Pair;
+          path = [...path, pair];
+
           const keyPath = findNodePath(offset, pair.key as Node, path);
           const valuePath = findNodePath(offset, pair.value as Node, path);
           if (valuePath.length > keyPath.length) return valuePath;
           if (keyPath.length > 0) return keyPath;
         } else {
-          // it's a Sequence item
+          // is a Sequence item (array)
+          path = [...path, node];
           const seqPath = findNodePath(offset, item as Node, path);
           if (seqPath.length > 0) return seqPath;
         }
+      } else {
+        path = [...path, node];
       }
     }
   }
@@ -49,10 +53,11 @@ function findNodePath(offset: number, node: Node, currentPath: Node[]): Node[] {
 /**
  * Gets the nth parent key from the given YAML text and position.
  */
-export function getNthParentKey(
+export function getParentKeys(
   yamlText: string,
   position: Position,
-  level: number
+  level: number,
+  connection: any
 ): string | undefined {
   const doc = parseDocument(yamlText);
   const offset = posToOffset(position, yamlText);
@@ -61,22 +66,43 @@ export function getNthParentKey(
 
   const path = findNodePath(offset, rootNode, []);
   const reversed = [...path].reverse();
+  connection.console.log(`PATH: ${path}`);
 
-  let found = 0;
+  let keyCount = 0;
   for (const node of reversed) {
     if (isPair(node)) {
       const keyNode = node.key;
-      if (isScalar(keyNode)) {
-        const value = keyNode.value;
-        if (typeof value === 'string') {
-          found++;
-          if (found === level) {
-            return value;
-          }
+      if (isScalar(keyNode) && typeof keyNode.value === 'string') {
+        if (keyCount === level) {
+          return keyNode.value;
         }
+        keyCount++;
       }
     }
   }
 
   return undefined;
 }
+
+// export function getParentKeys(yamlText: string, position: Position): string[] | undefined {
+//   const doc = parseDocument(yamlText);
+//   const offset = posToOffset(position, yamlText);
+//   const rootNode = doc.contents as Node;
+//   if (!rootNode) return undefined;
+
+//   const path = findNodePath(offset, rootNode, []);
+//   const reversed = [...path].reverse();
+
+//   const keys: string[] = [];
+
+//   for (const node of reversed) {
+//     if (isPair(node)) {
+//       const keyNode = node.key;
+//       if (isScalar(keyNode) && typeof keyNode.value === 'string') {
+//         keys.unshift(keyNode.value); // build path from root to leaf
+//       }
+//     }
+//   }
+
+//   return keys.length > 0 ? keys : undefined;
+// }

@@ -12,10 +12,9 @@ import {
   createConnection,
 } from 'vscode-languageserver/node';
 
-import { TextDocument } from 'vscode-languageserver-textdocument';
+import { TextDocument, Position } from 'vscode-languageserver-textdocument';
 import createGetCompletionSuggestions from './utils/getCompletionSuggestions';
-import { parseDocument } from 'yaml';
-import { getNthParentKey } from './utils/getNthParent';
+import { getParentKeys } from './utils/getNthParent';
 
 // Create a connection for the server, using Node's IPC as a transport.
 // Also include all preview / proposed LSP features.
@@ -27,7 +26,7 @@ const documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument);
 let hasConfigurationCapability: boolean = false;
 let hasWorkspaceFolderCapability: boolean = false;
 let hasDiagnosticRelatedInformationCapability: boolean = false;
-let getCompletionSuggestions = (text: string): CompletionItem[] => {
+let getCompletionSuggestions = (text: string, pos: Position): CompletionItem[] => {
   return [];
 };
 
@@ -170,24 +169,11 @@ async function validateTextDocument(textDocument: TextDocument): Promise<void> {
 connection.onCompletion((params: TextDocumentPositionParams): CompletionItem[] => {
   const document = documents.get(params.textDocument.uri);
   if (!document) return [];
+  connection.console.log(
+    `Nth parent key ${getParentKeys(document.getText(), params.position, 0, connection)}`
+  );
 
-  const pos = params.position;
-  const parsedDoc = parseDocument(document.getText());
-
-  const lines = document.getText().split('\n');
-  let offset = 0;
-  for (let i = 0; i < pos.line; i++) {
-    offset += lines[i].length + 1;
-  }
-  offset += pos.character;
-  // connection.console.log('parsedDocument');
-  // connection.console.log(JSON.stringify(parsedDoc?.contents || null));
-  // connection.console.log(`pos.line ${pos.line}`);
-  // connection.console.log(`pos.character ${pos.character}`);
-  // connection.console.log(`Offset ${offset}`);
-  connection.console.log(`parent key ${getNthParentKey(document.getText(), params.position, 1)}`);
-
-  return getCompletionSuggestions(document.getText());
+  return getCompletionSuggestions(document.getText(), params.position);
 });
 
 connection.onCompletionResolve((item: CompletionItem): CompletionItem => {

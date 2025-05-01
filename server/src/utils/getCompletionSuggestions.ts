@@ -5,6 +5,8 @@ import { Action } from '../types/action';
 import { Connection } from '../types/connection';
 import { Block } from '../types/block';
 
+import { getParentKeys } from './getNthParent';
+
 import actionsJson from '../resources/docs/actions.json';
 const actions: Action = actionsJson;
 
@@ -24,6 +26,7 @@ import listsJson from '../resources/docs/lists.json';
 const lists: Block = listsJson;
 
 import operatorsJson from '../resources/docs/operators.json';
+import { Position } from 'vscode-languageserver-textdocument';
 const operators: Operators = operatorsJson;
 
 function getFormattedActions(): CompletionItem[] {
@@ -114,6 +117,10 @@ function getFormattedOperators(): CompletionItem[] {
   });
 }
 
+function checkIntersection(targetArray: any[], values: any[]): Boolean {
+  return values.some((item) => targetArray.includes(item));
+}
+
 function createGetCompletionSuggestions() {
   const actions = getFormattedActions(); // parent is `type` and parent.parent.parent is `events`
   const connections = getFormattedConnections(); // parent is `connection`
@@ -123,12 +130,10 @@ function createGetCompletionSuggestions() {
   const lists = getFormattedLists(); // parent is `type` and parent.parent is `blocks`
   const operators = getFormattedOperators(); // developer typed `_`
 
-  return (text: string): CompletionItem[] => {
+  return (document: string, position: Position): CompletionItem[] => {
     // Suggest block types if parent is `type`.
     // Suggest properties/params depending on if type was given.
-    // if (true) {
-    //   return operators;
-    // }
+    // const parentKeys = getParentKeys(document, position);
     const defaultCompletions: CompletionItem[] = [
       {
         label: 'id',
