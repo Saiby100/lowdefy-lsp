@@ -14,7 +14,7 @@ import {
 
 import { TextDocument, Position } from 'vscode-languageserver-textdocument';
 import createGetCompletionSuggestions from './utils/getCompletionSuggestions';
-import { getParentKeys } from './utils/getNthParent';
+import { getParentKeys } from './utils/getParentKeys';
 
 // Create a connection for the server, using Node's IPC as a transport.
 // Also include all preview / proposed LSP features.
@@ -169,9 +169,7 @@ async function validateTextDocument(textDocument: TextDocument): Promise<void> {
 connection.onCompletion((params: TextDocumentPositionParams): CompletionItem[] => {
   const document = documents.get(params.textDocument.uri);
   if (!document) return [];
-  connection.console.log(
-    `Nth parent key ${getParentKeys(document.getText(), params.position, 0, connection)}`
-  );
+  connection.console.log(`All parent keys ${getParentKeys(document.getText(), params.position)}`);
 
   return getCompletionSuggestions(document.getText(), params.position);
 });

@@ -5,7 +5,7 @@ import { Action } from '../types/action';
 import { Connection } from '../types/connection';
 import { Block } from '../types/block';
 
-import { getParentKeys } from './getNthParent';
+import { getParentKeys } from './getParentKeys';
 
 import actionsJson from '../resources/docs/actions.json';
 const actions: Action = actionsJson;
