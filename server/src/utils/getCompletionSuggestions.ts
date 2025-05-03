@@ -117,44 +117,80 @@ function getFormattedOperators(): CompletionItem[] {
   });
 }
 
-function checkIntersection(targetArray: any[], values: any[]): Boolean {
-  return values.some((item) => targetArray.includes(item));
+function suggestActions(parentKeys: string[], actions: CompletionItem[]): CompletionItem[] {
+  if (parentKeys.length < 3) return [];
+  if (parentKeys[0] === 'type' && parentKeys[2] === 'events') return actions;
+  return [];
+}
+
+function suggestConnections(parentKeys: string[], connections: CompletionItem[]): CompletionItem[] {
+  if (parentKeys.length < 2) return [];
+  if (parentKeys[0] === 'type' && parentKeys[1] === 'connections') return connections;
+  return [];
+}
+
+function suggestBlocks(parentKeys: string[], blocks: CompletionItem[]): CompletionItem[] {
+  if (parentKeys.length < 2) return [];
+  if (parentKeys[0] === 'type' && parentKeys[1] === 'blocks') return blocks;
+  return [];
+}
+
+function suggestOperators(parentKeys: string[], operators: CompletionItem[]): CompletionItem[] {
+  if (parentKeys?.[0] !== 'type') return operators;
+  return operators.filter((operator) => operator.label !== '_build');
 }
 
 function createGetCompletionSuggestions() {
-  const actions = getFormattedActions(); // parent is `type` and parent.parent.parent is `events`
-  const connections = getFormattedConnections(); // parent is `connection`
-  const containers = getFormattedContainers(); // parent is `type` and parent.parent is `blocks`
-  const displays = getFormattedDisplays(); // parent is `type` and parent.parent is `blocks`
-  const inputs = getFormattedInputs(); // parent is `type` and parent.parent is `blocks`
-  const lists = getFormattedLists(); // parent is `type` and parent.parent is `blocks`
-  const operators = getFormattedOperators(); // developer typed `_`
+  const actions = getFormattedActions();
+  const connections = getFormattedConnections();
+  const containers = getFormattedContainers();
+  const displays = getFormattedDisplays();
+  const inputs = getFormattedInputs();
+  const lists = getFormattedLists();
+  const operators = getFormattedOperators();
+  const defaultCompletions: CompletionItem[] = [
+    //TODO: Suggest if parent node is sequence
+    {
+      label: 'id',
+      kind: CompletionItemKind.Field,
+      insertText: 'id: ',
+      documentation: {
+        kind: 'markdown',
+        value: '**id**: Sets the id of the block (should be unique).',
+      },
+    },
+    {
+      label: 'type',
+      kind: CompletionItemKind.Field,
+      insertText: 'type: ',
+      documentation: {
+        kind: 'markdown',
+        value: '**type**: Sets the type of the block you would like to use.',
+      },
+    },
+  ];
 
   return (document: string, position: Position): CompletionItem[] => {
-    // Suggest block types if parent is `type`.
-    // Suggest properties/params depending on if type was given.
-    // const parentKeys = getParentKeys(document, position);
-    const defaultCompletions: CompletionItem[] = [
-      {
-        label: 'id',
-        kind: CompletionItemKind.Field,
-        insertText: 'id: ',
-        documentation: {
-          kind: 'markdown',
-          value: '**id**: Sets the id of the block (should be unique).',
-        },
-      },
-      {
-        label: 'type',
-        kind: CompletionItemKind.Field,
-        insertText: 'type: ',
-        documentation: {
-          kind: 'markdown',
-          value: '**type**: Sets the type of the block you would like to use.',
-        },
-      },
+    const keys = getParentKeys(document, position) ?? [];
+    const actionsSuggestions = suggestActions(keys, actions);
+    const connectionsSuggestions = suggestConnections(keys, connections);
+    const blocksSuggestions = suggestBlocks(keys, [
+      ...containers,
+      ...displays,
+      ...inputs,
+      ...lists,
+    ]);
+    const operatorSuggestions = suggestOperators(keys, operators);
+    const defaultSuggestions = keys[0] === undefined ? defaultCompletions : [];
+    const suggestions = [
+      ...actionsSuggestions,
+      ...connectionsSuggestions,
+      ...blocksSuggestions,
+      ...operatorSuggestions,
+      ...defaultSuggestions,
     ];
-    return defaultCompletions;
+
+    return suggestions;
   };
 }
 

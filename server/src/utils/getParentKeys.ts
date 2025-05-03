@@ -14,7 +14,7 @@ function posToOffset(pos: Position, text: string): number {
 }
 
 /**
- * Recursively finds the path of nodes leading to the current offset.
+ * Recursively finds the path of nodes leading to the current offset (cursor position).
  */
 function findNodePath(offset: number, node: Node, currentPath: (Node | Pair)[]): (Node | Pair)[] {
   if (!node || !node.range) return currentPath;
