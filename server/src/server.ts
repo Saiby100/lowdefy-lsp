@@ -1,3 +1,4 @@
+import { parseDocument } from 'yaml';
 import {
   CompletionItem,
   Diagnostic,
@@ -12,27 +13,21 @@ import {
   createConnection,
 } from 'vscode-languageserver/node';
 
-import { TextDocument, Position } from 'vscode-languageserver-textdocument';
-import createGetCompletionSuggestions from './utils/getCompletionSuggestions';
-import { getParentKeys } from './utils/getParentKeys';
+import { TextDocument } from 'vscode-languageserver-textdocument';
+import getCompletionSuggestions from './utils/getCompletionSuggestions';
 
-// Create a connection for the server, using Node's IPC as a transport.
-// Also include all preview / proposed LSP features.
 const connection = createConnection(ProposedFeatures.all);
 
 // Create a simple text document manager.
 const documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument);
+const parsedDocuments: Map<string, Record<string, any>> = new Map();
 
 let hasConfigurationCapability: boolean = false;
 let hasWorkspaceFolderCapability: boolean = false;
 let hasDiagnosticRelatedInformationCapability: boolean = false;
-let getCompletionSuggestions = (text: string, pos: Position): CompletionItem[] => {
-  return [];
-};
 
 connection.onInitialize((params: InitializeParams) => {
   const capabilities = params.capabilities;
-  getCompletionSuggestions = createGetCompletionSuggestions();
 
   hasConfigurationCapability = !!(capabilities.workspace && !!capabilities.workspace.configuration);
   hasWorkspaceFolderCapability = !!(
@@ -116,6 +111,8 @@ documents.onDidClose((e) => {
 
 documents.onDidChangeContent((change) => {
   validateTextDocument(change.document);
+  // Parse the document and store it in the global map
+  parsedDocuments.set(change.document.uri, parseDocument(change.document.getText()));
   connection.window.showInformationMessage('onDidChangeContent: ' + change.document.uri);
 });
 
@@ -168,10 +165,10 @@ async function validateTextDocument(textDocument: TextDocument): Promise<void> {
 
 connection.onCompletion((params: TextDocumentPositionParams): CompletionItem[] => {
   const document = documents.get(params.textDocument.uri);
-  if (!document) return [];
-  connection.console.log(`All parent keys ${getParentKeys(document.getText(), params.position)}`);
+  const parsedDocument = parsedDocuments.get(params.textDocument.uri);
+  if (!document || !parsedDocument) return [];
 
-  return getCompletionSuggestions(document.getText(), params.position);
+  return getCompletionSuggestions(document.getText(), parsedDocument, params.position);
 });
 
 connection.onCompletionResolve((item: CompletionItem): CompletionItem => {

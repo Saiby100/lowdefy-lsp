@@ -1,153 +1,55 @@
 import { CompletionItem, CompletionItemKind } from 'vscode-languageserver';
-
-import { Operators, OperatorKey } from '../types/operator';
-import { Action } from '../types/action';
-import { Connection } from '../types/connection';
-import { Block } from '../types/block';
-
-import { getParentKeys } from './getParentKeys';
-
-import actionsJson from '../resources/docs/actions.json';
-const actions: Action = actionsJson;
-
-import connectionsJson from '../resources/docs/connections.json';
-const connections: Connection = connectionsJson;
-
-import containersJson from '../resources/docs/containers.json';
-const containers: Block = containersJson;
-
-import displaysJson from '../resources/docs/displays.json';
-const displays: Block = displaysJson;
-
-import inputsJson from '../resources/docs/inputs.json';
-const inputs: Block = inputsJson;
-
-import listsJson from '../resources/docs/lists.json';
-const lists: Block = listsJson;
-
-import operatorsJson from '../resources/docs/operators.json';
+import { getParentKeys } from './parseYaml';
 import { Position } from 'vscode-languageserver-textdocument';
-const operators: Operators = operatorsJson;
+import formatTypes from './formatTypes';
 
-function getFormattedActions(): CompletionItem[] {
-  return Object.keys(actions).map((action) => ({
-    label: action,
-    kind: CompletionItemKind.Method,
-    insertText: action,
-    documentation: {
-      kind: 'markdown',
-      value: actions[action].description,
-    },
-  }));
-}
+const lowdefyTypes = formatTypes();
 
-function getFormattedConnections(): CompletionItem[] {
-  return Object.keys(connections).map((connection) => ({
-    label: connection,
-    kind: CompletionItemKind.Class, //TODO: Find good kind
-    insertText: connection,
-    documentation: {
-      kind: 'markdown',
-      value: connections[connection].description,
-    },
-  }));
-}
-
-function getFormattedContainers(): CompletionItem[] {
-  return Object.keys(containers).map((container) => ({
-    label: container,
-    kind: CompletionItemKind.Class,
-    insertText: container,
-    documentation: {
-      kind: 'markdown',
-      value: containers[container].description,
-    },
-  }));
-}
-
-function getFormattedDisplays(): CompletionItem[] {
-  return Object.keys(displays).map((display) => ({
-    label: display,
-    kind: CompletionItemKind.Method,
-    insertText: display,
-    documentation: {
-      kind: 'markdown',
-      value: displays[display].description,
-    },
-  }));
-}
-
-function getFormattedInputs(): CompletionItem[] {
-  return Object.keys(inputs).map((input) => ({
-    label: input,
-    kind: CompletionItemKind.Method,
-    insertText: input,
-    documentation: {
-      kind: 'markdown',
-      value: inputs[input].description,
-    },
-  }));
-}
-
-function getFormattedLists(): CompletionItem[] {
-  return Object.keys(lists).map((list) => ({
-    label: list,
-    kind: CompletionItemKind.Method,
-    insertText: list,
-    documentation: {
-      kind: 'markdown',
-      value: lists[list].description,
-    },
-  }));
-}
-
-function getFormattedOperators(): CompletionItem[] {
-  return Object.keys(operators).map((operator) => {
-    const operatorKey = operator as OperatorKey;
-
-    return {
-      label: operatorKey,
-      kind: CompletionItemKind.Operator,
-      insertText: operators[operatorKey]?.hasMethods ? operatorKey : `${operatorKey}: `,
-      documentation: {
-        kind: 'markdown',
-        value: operators[operatorKey].description,
-      },
-    };
-  });
-}
-
-function suggestActions(parentKeys: string[], actions: CompletionItem[]): CompletionItem[] {
+function suggestActions(parentKeys: string[]): CompletionItem[] {
   if (parentKeys.length < 3) return [];
-  if (parentKeys[0] === 'type' && parentKeys[2] === 'events') return actions;
+  if (parentKeys[0] === 'type' && parentKeys[2] === 'events') return lowdefyTypes.actions;
   return [];
 }
 
-function suggestConnections(parentKeys: string[], connections: CompletionItem[]): CompletionItem[] {
+function suggestConnections(parentKeys: string[]): CompletionItem[] {
   if (parentKeys.length < 2) return [];
-  if (parentKeys[0] === 'type' && parentKeys[1] === 'connections') return connections;
+  if (parentKeys[0] === 'type' && parentKeys[1] === 'connections') return lowdefyTypes.connections;
   return [];
 }
 
-function suggestBlocks(parentKeys: string[], blocks: CompletionItem[]): CompletionItem[] {
+function suggestBlocks(parentKeys: string[]): CompletionItem[] {
+  const blocks = [
+    ...lowdefyTypes.containers,
+    ...lowdefyTypes.displays,
+    ...lowdefyTypes.inputs,
+    ...lowdefyTypes.lists,
+  ];
   if (parentKeys.length < 2) return [];
   if (parentKeys[0] === 'type' && parentKeys[1] === 'blocks') return blocks;
   return [];
 }
 
-function suggestOperators(parentKeys: string[], operators: CompletionItem[]): CompletionItem[] {
+function suggestOperators(parentKeys: string[]): CompletionItem[] {
+  const { operators } = lowdefyTypes;
   if (parentKeys?.[0] !== 'type') return operators;
   return operators.filter((operator) => operator.label !== '_build');
 }
 
-function createGetCompletionSuggestions() {
-  const actions = getFormattedActions();
-  const connections = getFormattedConnections();
-  const containers = getFormattedContainers();
-  const displays = getFormattedDisplays();
-  const inputs = getFormattedInputs();
-  const lists = getFormattedLists();
-  const operators = getFormattedOperators();
+function getSuggestions(parentKeys: string[]): CompletionItem[] {
+  if (parentKeys.length === 0) return [];
+  return [
+    ...suggestActions(parentKeys),
+    ...suggestConnections(parentKeys),
+    ...suggestBlocks(parentKeys),
+    ...suggestOperators(parentKeys),
+  ];
+}
+
+function getCompletionSuggestions(
+  documentText: string,
+  documentJSON: Record<string, any>,
+  position: Position
+): CompletionItem[] {
   const defaultCompletions: CompletionItem[] = [
     //TODO: Suggest if parent node is sequence
     {
@@ -170,28 +72,11 @@ function createGetCompletionSuggestions() {
     },
   ];
 
-  return (document: string, position: Position): CompletionItem[] => {
-    const keys = getParentKeys(document, position) ?? [];
-    const actionsSuggestions = suggestActions(keys, actions);
-    const connectionsSuggestions = suggestConnections(keys, connections);
-    const blocksSuggestions = suggestBlocks(keys, [
-      ...containers,
-      ...displays,
-      ...inputs,
-      ...lists,
-    ]);
-    const operatorSuggestions = suggestOperators(keys, operators);
-    const defaultSuggestions = keys[0] === undefined ? defaultCompletions : [];
-    const suggestions = [
-      ...actionsSuggestions,
-      ...connectionsSuggestions,
-      ...blocksSuggestions,
-      ...operatorSuggestions,
-      ...defaultSuggestions,
-    ];
+  const keys = getParentKeys(documentText, documentJSON, position) ?? [];
+  const suggestions = getSuggestions(keys);
 
-    return suggestions;
-  };
+  if (suggestions.length === 0) return defaultCompletions;
+  return suggestions;
 }
 
-export default createGetCompletionSuggestions;
+export default getCompletionSuggestions;

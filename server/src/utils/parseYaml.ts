@@ -1,8 +1,11 @@
-import { parseDocument, isMap, isSeq, Node, Pair, isPair, isScalar } from 'yaml';
+import { isMap, isSeq, Node, Pair, isPair, isScalar } from 'yaml';
 import { Position } from 'vscode-languageserver-types';
 
 /**
- * Converts type Position to offset used by YAML AST.
+ * Calculates the offset of a cursor position in a YAML document.
+ * @param pos the position of the cursor in the document
+ * @param text the stringified text of the document
+ * @returns the offset of the cursor in the document
  */
 function posToOffset(pos: Position, text: string): number {
   const lines = text.split('\n');
@@ -48,10 +51,13 @@ function findNodePath(offset: number, node: Node, currentPath: (Node | Pair)[]):
   return path;
 }
 
-export function getParentKeys(yamlText: string, position: Position): string[] | undefined {
-  const doc = parseDocument(yamlText);
-  const offset = posToOffset(position, yamlText);
-  const rootNode = doc.contents as Node;
+function getParentKeys(
+  documentText: string,
+  documentJSON: Record<string, any>,
+  position: Position
+): string[] | undefined {
+  const offset = posToOffset(position, documentText);
+  const rootNode = documentJSON.contents as Node;
   if (!rootNode) return undefined;
 
   const path = findNodePath(offset, rootNode, []);
@@ -67,3 +73,5 @@ export function getParentKeys(yamlText: string, position: Position): string[] | 
 
   return keys.length > 0 ? keys : undefined;
 }
+
+export { getParentKeys };
