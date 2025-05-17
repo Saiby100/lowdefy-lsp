@@ -32,7 +32,7 @@ function suggestBlocks(parentKeys: string[]): CompletionItem[] {
 function suggestOperators(parentKeys: string[]): CompletionItem[] {
   const { operators } = lowdefyTypes;
   if (parentKeys?.[0] !== 'type') return operators;
-  return operators.filter((operator) => operator.label !== '_build');
+  return operators.filter((operator) => operator.label === '_build');
 }
 
 function getSuggestions(parentKeys: string[]): CompletionItem[] {
@@ -55,7 +55,7 @@ function getCompletionSuggestions(
     {
       label: 'id',
       kind: CompletionItemKind.Field,
-      insertText: 'id: ',
+      insertText: 'id:',
       documentation: {
         kind: 'markdown',
         value: '**id**: Sets the id of the block (should be unique).',
@@ -64,7 +64,7 @@ function getCompletionSuggestions(
     {
       label: 'type',
       kind: CompletionItemKind.Field,
-      insertText: 'type: ',
+      insertText: 'type:',
       documentation: {
         kind: 'markdown',
         value: '**type**: Sets the type of the block you would like to use.',
