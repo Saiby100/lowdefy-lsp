@@ -51,27 +51,54 @@ function findNodePath(offset: number, node: Node, currentPath: (Node | Pair)[]):
   return path;
 }
 
-function getParentKeys(
-  documentText: string,
-  documentJSON: Record<string, any>,
-  position: Position
-): string[] | undefined {
-  const offset = posToOffset(position, documentText);
-  const rootNode = documentJSON.contents as Node;
-  if (!rootNode) return undefined;
+function getSequenceNode(path: (Node | Pair)[], sequenceKeys: string[] = []): string | undefined {
+  const matches = ['blocks', 'connections', 'requests', 'plugins', 'on.*', ...sequenceKeys];
+  const regex = new RegExp(`^(${matches.join('|')})$`);
 
-  const path = findNodePath(offset, rootNode, []);
+  for (const node of path) {
+    if (isPair(node) && isSeq(node.value) && isScalar(node.key)) {
+      const key = node.key.value;
+      if (typeof key === 'string' && key.match(regex)) {
+        return key;
+      }
+    }
+  }
+  return undefined;
+}
 
+function getParentKeys(path: (Node | Pair)[]): string[] | undefined {
   const keys: string[] = [];
 
   path.forEach((node) => {
     if (!isPair(node)) return;
     if (isScalar(node.key) && typeof node.key.value === 'string') {
-      keys.unshift(node.key.value);
+      keys.push(node.key.value);
     }
   });
 
   return keys.length > 0 ? keys : undefined;
 }
 
-export { getParentKeys };
+function getCursorContext(
+  documentText: string,
+  documentJSON: Record<string, any>,
+  position: Position
+): Record<string, any> {
+  const offset = posToOffset(position, documentText);
+  const rootNode = documentJSON.contents as Node;
+
+  if (!rootNode) return {};
+
+  const path = findNodePath(offset, rootNode, []).reverse();
+  const keys = getParentKeys(path);
+  const sequenceNode = getSequenceNode(path);
+
+  return {
+    offset,
+    path,
+    keys,
+    sequenceNode,
+  };
+}
+
+export { getCursorContext };

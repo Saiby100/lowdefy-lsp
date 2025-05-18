@@ -1,20 +1,30 @@
 import { CompletionItem, CompletionItemKind } from 'vscode-languageserver';
-import { getParentKeys } from './parseYaml';
+import { getCursorContext } from './getCursorContext';
 import { Position } from 'vscode-languageserver-textdocument';
 import formatTypes from './formatTypes';
 
 const lowdefyTypes = formatTypes();
 
-function suggestActions(parentKeys: string[]): CompletionItem[] {
-  if (parentKeys.length < 3) return [];
-  if (parentKeys[0] === 'type' && parentKeys[2] === 'events') return lowdefyTypes.actions;
-  return [];
+function suggestActions({
+  keys,
+  sequenceNode,
+}: {
+  keys: string[];
+  sequenceNode: string | undefined;
+}): CompletionItem[] {
+  if (!sequenceNode?.startsWith('on.') || keys[0] !== 'type') return [];
+  return lowdefyTypes.actions;
 }
 
-function suggestConnections(parentKeys: string[]): CompletionItem[] {
-  if (parentKeys.length < 2) return [];
-  if (parentKeys[0] === 'type' && parentKeys[1] === 'connections') return lowdefyTypes.connections;
-  return [];
+function suggestConnections({
+  keys,
+  sequenceNode,
+}: {
+  keys: string[];
+  sequenceNode: string | undefined;
+}): CompletionItem[] {
+  if (sequenceNode !== 'connections' || keys[0] !== 'type') return [];
+  return lowdefyTypes.connections;
 }
 
 function suggestBlocks(parentKeys: string[]): CompletionItem[] {
@@ -35,13 +45,13 @@ function suggestOperators(parentKeys: string[]): CompletionItem[] {
   return operators.filter((operator) => operator.label === '_build');
 }
 
-function getSuggestions(parentKeys: string[]): CompletionItem[] {
-  if (parentKeys.length === 0) return [];
+function getSuggestions(cursorContext: Record<string, any>): CompletionItem[] {
+  if (cursorContext.keys.length === 0) return [];
   return [
-    ...suggestActions(parentKeys),
-    ...suggestConnections(parentKeys),
-    ...suggestBlocks(parentKeys),
-    ...suggestOperators(parentKeys),
+    ...suggestActions(cursorContext),
+    ...suggestConnections(cursorContext),
+    ...suggestBlocks(cursorContext),
+    ...suggestOperators(cursorContext),
   ];
 }
 
@@ -72,8 +82,9 @@ function getCompletionSuggestions(
     },
   ];
 
-  const keys = getParentKeys(documentText, documentJSON, position) ?? [];
-  const suggestions = getSuggestions(keys);
+  // const keys = getParentKeys(documentText, documentJSON, position) ?? [];
+  const cursorContext = getCursorContext(documentText, documentJSON, position);
+  const suggestions = getSuggestions(cursorContext);
 
   if (suggestions.length === 0) return defaultCompletions;
   return suggestions;
