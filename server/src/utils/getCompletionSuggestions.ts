@@ -3,7 +3,6 @@ import { getCursorContext } from './getCursorContext';
 import { Position } from 'vscode-languageserver-textdocument';
 import formatTypes from './formatTypes';
 import { CursorContext } from '../types/cursor-context';
-import { isScalar, Node, Scalar } from 'yaml';
 
 const lowdefyTypes = formatTypes();
 
