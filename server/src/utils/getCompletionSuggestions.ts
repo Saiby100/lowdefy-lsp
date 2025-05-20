@@ -2,66 +2,40 @@ import { CompletionItem, CompletionItemKind } from 'vscode-languageserver';
 import { getCursorContext } from './getCursorContext';
 import { Position } from 'vscode-languageserver-textdocument';
 import formatTypes from './formatTypes';
+import { CursorContext } from '../types/cursor-context';
+import { isScalar, Node, Scalar } from 'yaml';
 
 const lowdefyTypes = formatTypes();
 
-function suggestActions({
-  keys,
-  sequenceNode,
-}: {
-  keys: string[];
-  sequenceNode: string | undefined;
-}): CompletionItem[] {
-  if (!sequenceNode?.startsWith('on.') || keys[0] !== 'type') return [];
+function suggestActions({ keys, sequenceKey }: CursorContext): CompletionItem[] {
+  if (!sequenceKey?.startsWith('on.') || keys[0] !== 'type') return [];
   return lowdefyTypes.actions;
 }
 
-function suggestConnections({
-  keys,
-  sequenceNode,
-}: {
-  keys: string[];
-  sequenceNode: string | undefined;
-}): CompletionItem[] {
-  if (sequenceNode !== 'connections' || keys[0] !== 'type') return [];
+function suggestConnections({ keys, sequenceKey }: CursorContext): CompletionItem[] {
+  if (sequenceKey !== 'connections' || keys[0] !== 'type') return [];
   return lowdefyTypes.connections;
 }
 
-function suggestBlocks(parentKeys: string[]): CompletionItem[] {
-  const blocks = [
+function suggestBlocks({ keys, sequenceKey }: CursorContext): CompletionItem[] {
+  if (sequenceKey !== 'blocks' || keys[0] !== 'type') return [];
+  return [
     ...lowdefyTypes.containers,
     ...lowdefyTypes.displays,
     ...lowdefyTypes.inputs,
     ...lowdefyTypes.lists,
   ];
-  if (parentKeys.length < 2) return [];
-  if (parentKeys[0] === 'type' && parentKeys[1] === 'blocks') return blocks;
-  return [];
 }
 
-function suggestOperators(parentKeys: string[]): CompletionItem[] {
-  const { operators } = lowdefyTypes;
-  if (parentKeys?.[0] !== 'type') return operators;
-  return operators.filter((operator) => operator.label === '_build');
+function suggestOperators({ lastTyped }: CursorContext): CompletionItem[] {
+  if (!lastTyped || !lastTyped.startsWith('_')) return [];
+  return lowdefyTypes.operators;
 }
 
-function getSuggestions(cursorContext: Record<string, any>): CompletionItem[] {
-  if (cursorContext.keys.length === 0) return [];
+function suggestDefaults({ keys, sequenceKey, lastTyped }: CursorContext): CompletionItem[] {
+  const firstKey = lastTyped === keys[0] ? keys[1] : keys[0]; // TODO: Related to todo in getCursorContext
+  if (!sequenceKey || sequenceKey !== firstKey) return [];
   return [
-    ...suggestActions(cursorContext),
-    ...suggestConnections(cursorContext),
-    ...suggestBlocks(cursorContext),
-    ...suggestOperators(cursorContext),
-  ];
-}
-
-function getCompletionSuggestions(
-  documentText: string,
-  documentJSON: Record<string, any>,
-  position: Position
-): CompletionItem[] {
-  const defaultCompletions: CompletionItem[] = [
-    //TODO: Suggest if parent node is sequence
     {
       label: 'id',
       kind: CompletionItemKind.Field,
@@ -81,12 +55,29 @@ function getCompletionSuggestions(
       },
     },
   ];
+}
 
-  // const keys = getParentKeys(documentText, documentJSON, position) ?? [];
+function getSuggestions(cursorContext: CursorContext): CompletionItem[] {
+  if (cursorContext.keys.length === 0) return [];
+  return [
+    ...suggestActions(cursorContext),
+    ...suggestConnections(cursorContext),
+    ...suggestBlocks(cursorContext),
+    ...suggestOperators(cursorContext),
+    ...suggestDefaults(cursorContext),
+  ];
+}
+
+function getCompletionSuggestions(
+  documentText: string,
+  documentJSON: Record<string, any>,
+  position: Position
+): CompletionItem[] {
   const cursorContext = getCursorContext(documentText, documentJSON, position);
   const suggestions = getSuggestions(cursorContext);
 
-  if (suggestions.length === 0) return defaultCompletions;
+  console.log('cursorContext', cursorContext);
+  // if (suggestions.length === 0) return defaultCompletions;
   return suggestions;
 }
 

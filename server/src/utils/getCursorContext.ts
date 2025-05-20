@@ -1,5 +1,12 @@
-import { isMap, isSeq, Node, Pair, isPair, isScalar } from 'yaml';
+import { isMap, isSeq, Node, Pair, isPair, isScalar, Scalar } from 'yaml';
 import { Position } from 'vscode-languageserver-types';
+import { CursorContext } from '../types/cursor-context';
+
+/**
+ * TODO: Build formatted path.
+ * TODO: Ignore key in parent keys before colon is typed.
+ * TODO: Keystroke string (string currently being typed)
+ */
 
 /**
  * Calculates the offset of a cursor position in a YAML document.
@@ -51,7 +58,7 @@ function findNodePath(offset: number, node: Node, currentPath: (Node | Pair)[]):
   return path;
 }
 
-function getSequenceNode(path: (Node | Pair)[], sequenceKeys: string[] = []): string | undefined {
+function getSequenceKey(path: (Node | Pair)[], sequenceKeys: string[] = []): string | undefined {
   const matches = ['blocks', 'connections', 'requests', 'plugins', 'on.*', ...sequenceKeys];
   const regex = new RegExp(`^(${matches.join('|')})$`);
 
@@ -66,7 +73,7 @@ function getSequenceNode(path: (Node | Pair)[], sequenceKeys: string[] = []): st
   return undefined;
 }
 
-function getParentKeys(path: (Node | Pair)[]): string[] | undefined {
+function getParentKeys(path: (Node | Pair)[]): string[] {
   const keys: string[] = [];
 
   path.forEach((node) => {
@@ -76,28 +83,39 @@ function getParentKeys(path: (Node | Pair)[]): string[] | undefined {
     }
   });
 
-  return keys.length > 0 ? keys : undefined;
+  return keys;
+}
+
+function getLastTyped(path: (Node | Pair)[]): string | undefined {
+  if (isScalar(path[0])) {
+    const scalar = path[0] as Scalar;
+    return scalar.source;
+  }
+  return undefined;
 }
 
 function getCursorContext(
   documentText: string,
   documentJSON: Record<string, any>,
   position: Position
-): Record<string, any> {
+): CursorContext {
   const offset = posToOffset(position, documentText);
   const rootNode = documentJSON.contents as Node;
 
-  if (!rootNode) return {};
+  if (!rootNode)
+    return { keys: [], offset, path: [], sequenceKey: undefined, lastTyped: undefined };
 
   const path = findNodePath(offset, rootNode, []).reverse();
   const keys = getParentKeys(path);
-  const sequenceNode = getSequenceNode(path);
+  const sequenceKey = getSequenceKey(path);
+  const lastTyped = getLastTyped(path);
 
   return {
+    keys,
+    lastTyped,
     offset,
     path,
-    keys,
-    sequenceNode,
+    sequenceKey,
   };
 }
 
