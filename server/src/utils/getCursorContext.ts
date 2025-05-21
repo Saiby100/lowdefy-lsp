@@ -59,7 +59,7 @@ function findNodePath(offset: number, node: Node, currentPath: (Node | Pair)[]):
 }
 
 function getSequenceKey(path: (Node | Pair)[], sequenceKeys: string[] = []): string | undefined {
-  const matches = ['blocks', 'connections', 'requests', 'plugins', 'on.*', ...sequenceKeys];
+  const matches = ['api', 'blocks', 'connections', 'requests', 'plugins', 'on.*', ...sequenceKeys];
   const regex = new RegExp(`^(${matches.join('|')})$`);
 
   for (const node of path) {
