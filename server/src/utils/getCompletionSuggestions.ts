@@ -27,12 +27,12 @@ function suggestBlocks({ keys, sequenceKey }: CursorContext): CompletionItem[] {
 }
 
 function suggestOperators({ lastTyped }: CursorContext): CompletionItem[] {
-  if (!lastTyped || !lastTyped.startsWith('_')) return [];
+  if (!lastTyped?.startsWith('_')) return [];
   return lowdefyTypes.operators;
 }
 
 function suggestDefaults({ keys, sequenceKey, lastTyped }: CursorContext): CompletionItem[] {
-  const firstKey = lastTyped === keys[0] ? keys[1] : keys[0]; // TODO: Related to todo in getCursorContext
+  const firstKey = lastTyped === keys[0] ? keys[1] : keys[0];
   if (!sequenceKey || sequenceKey !== firstKey) return [];
   return [
     {
@@ -75,7 +75,7 @@ function getCompletionSuggestions(
   const cursorContext = getCursorContext(documentText, documentJSON, position);
   const suggestions = getSuggestions(cursorContext);
 
-  console.log('cursorContext', cursorContext);
+  // console.log('cursorContext', cursorContext);
   // if (suggestions.length === 0) return defaultCompletions;
   return suggestions;
 }

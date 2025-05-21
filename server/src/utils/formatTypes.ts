@@ -1,6 +1,6 @@
 import { CompletionItem, CompletionItemKind } from 'vscode-languageserver';
 
-import { Operators, OperatorKey } from '../types/operator';
+import { Operators } from '../types/operator';
 import { Action } from '../types/action';
 import { Connection } from '../types/connection';
 import { Block } from '../types/block';
@@ -80,15 +80,13 @@ function formatTypes(): Record<string, CompletionItem[]> {
       },
     })),
     operators: Object.keys(operators).map((operator) => {
-      const operatorKey = operator as OperatorKey;
-
       return {
-        label: operatorKey,
+        label: operator,
         kind: CompletionItemKind.Operator,
-        insertText: operators[operatorKey]?.hasMethods ? operatorKey : `${operatorKey}: `,
+        insertText: operators[operator]?.hasMethods ? operator.slice(1) : `${operator.slice(1)}: `,
         documentation: {
           kind: 'markdown',
-          value: operators[operatorKey].description,
+          value: operators[operator].description,
         },
       };
     }),

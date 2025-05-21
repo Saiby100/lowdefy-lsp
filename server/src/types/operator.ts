@@ -17,6 +17,4 @@ type OperatorData = {
   methods?: Method[];
 };
 
-export type OperatorKey = `_${string}`;
-
-export type Operators = Record<OperatorKey, OperatorData>;
+export type Operators = Record<string, OperatorData>;
