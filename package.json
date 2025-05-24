@@ -25,7 +25,21 @@
           "description": "Controls the maximum number of problems produced by the server."
         }
       }
-    }
+    },
+    "languages": [
+      {
+        "id": "yaml",
+        "extensions": [
+          ".yaml",
+          ".yml"
+        ],
+        "aliases": [
+          "YAML",
+          "yml"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ]
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
