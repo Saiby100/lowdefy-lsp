@@ -18,8 +18,8 @@ function suggestConnections({ keys, sequenceKey }: CursorContext): CompletionIte
   return lowdefyBlocks.connections;
 }
 
-function suggestBlocks({ lastTyped, keys, sequenceKey }: CursorContext): CompletionItem[] {
-  if (sequenceKey !== 'blocks' || keys[0] !== 'type' || lastTyped !== '') return [];
+function suggestBlocks({ keys, sequenceKey }: CursorContext): CompletionItem[] {
+  if (sequenceKey !== 'blocks' || keys[0] !== 'type') return [];
   return [
     ...lowdefyBlocks.containers,
     ...lowdefyBlocks.displays,
@@ -67,14 +67,18 @@ function suggestDefaults({ keys, sequenceKey, lastTyped }: CursorContext): Compl
 
 function getSuggestions(cursorContext: CursorContext): CompletionItem[] {
   if (cursorContext.keys.length === 0) return [];
-  return [
-    ...suggestActions(cursorContext),
-    ...suggestConnections(cursorContext),
-    ...suggestBlocks(cursorContext),
-    ...suggestOperators(cursorContext),
-    ...suggestMethods(cursorContext),
-    ...suggestDefaults(cursorContext),
-  ];
+  const actions = suggestActions(cursorContext);
+  const connections = suggestConnections(cursorContext);
+  const blocks = suggestBlocks(cursorContext);
+  const operators = suggestOperators(cursorContext);
+  const methods = suggestMethods(cursorContext);
+  const defaults = suggestDefaults(cursorContext);
+
+  if (defaults.length > 0) return defaults;
+  if (operators.length > 0) return operators;
+  if (methods.length > 0) return methods;
+
+  return [...actions, ...connections, ...blocks];
 }
 
 function getCompletionSuggestions(
