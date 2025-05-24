@@ -114,7 +114,6 @@ documents.onDidChangeContent((change) => {
   validateTextDocument(change.document);
   // Parse the document and store it in the global map
   parsedDocuments.set(change.document.uri, parseDocument(change.document.getText()));
-  connection.window.showInformationMessage('onDidChangeContent: ' + change.document.uri);
 });
 
 async function validateTextDocument(textDocument: TextDocument): Promise<void> {

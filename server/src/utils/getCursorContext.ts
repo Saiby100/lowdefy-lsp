@@ -3,9 +3,7 @@ import { Position } from 'vscode-languageserver-types';
 import { CursorContext } from '../types/cursor-context';
 
 /**
- * TODO: Build formatted path.
- * TODO: Ignore key in parent keys before colon is typed.
- * TODO: Keystroke string (string currently being typed)
+ * TODO: Need Current object relative to cursor position
  */
 
 /**
