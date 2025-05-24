@@ -23,11 +23,11 @@ const lists: Block = listsJson;
 const operators: Operators = operatorsJson;
 
 // Build completion arrays
-function formatTypes(): Record<string, CompletionItem[]> {
+function formatBlocks(): Record<string, CompletionItem[]> {
   return {
     actions: Object.keys(actions).map((action) => ({
       label: action,
-      kind: CompletionItemKind.Method,
+      kind: CompletionItemKind.Function,
       insertText: action,
       documentation: {
         kind: 'markdown',
@@ -45,7 +45,7 @@ function formatTypes(): Record<string, CompletionItem[]> {
     })),
     containers: Object.keys(containers).map((container) => ({
       label: container,
-      kind: CompletionItemKind.Class,
+      kind: CompletionItemKind.Module,
       insertText: container,
       documentation: {
         kind: 'markdown',
@@ -54,7 +54,7 @@ function formatTypes(): Record<string, CompletionItem[]> {
     })),
     displays: Object.keys(displays).map((display) => ({
       label: display,
-      kind: CompletionItemKind.Method,
+      kind: CompletionItemKind.Module,
       insertText: display,
       documentation: {
         kind: 'markdown',
@@ -63,7 +63,7 @@ function formatTypes(): Record<string, CompletionItem[]> {
     })),
     inputs: Object.keys(inputs).map((input) => ({
       label: input,
-      kind: CompletionItemKind.Method,
+      kind: CompletionItemKind.Module,
       insertText: input,
       documentation: {
         kind: 'markdown',
@@ -72,25 +72,57 @@ function formatTypes(): Record<string, CompletionItem[]> {
     })),
     lists: Object.keys(lists).map((list) => ({
       label: list,
-      kind: CompletionItemKind.Method,
+      kind: CompletionItemKind.Module,
       insertText: list,
       documentation: {
         kind: 'markdown',
         value: lists[list].description,
       },
     })),
-    operators: Object.keys(operators).map((operator) => {
-      return {
-        label: operator,
-        kind: CompletionItemKind.Operator,
-        insertText: operators[operator]?.hasMethods ? operator.slice(1) : `${operator.slice(1)}: `,
-        documentation: {
-          kind: 'markdown',
-          value: operators[operator].description,
-        },
-      };
-    }),
   };
 }
 
-export default formatTypes;
+function formatOperators(): CompletionItem[] {
+  return Object.keys(operators).map((operator) => {
+    return {
+      label: operator,
+      kind: CompletionItemKind.Operator,
+      insertText: operators[operator]?.hasMethods ? operator : `${operator}: `,
+      documentation: {
+        kind: 'markdown',
+        value: operators[operator].description,
+      },
+    };
+  });
+}
+
+function formatMethods(): Record<string, CompletionItem[]> {
+  const methods: Record<string, CompletionItem[]> = {};
+
+  Object.keys(operators).forEach((operator) => {
+    if (!operators[operator].hasMethods) return;
+
+    const operatorMethods = operators[operator].methods || [];
+
+    if (!methods[operator]) {
+      methods[operator] = [];
+    }
+
+    operatorMethods.forEach((method) => {
+      const newMethod: CompletionItem = {
+        label: method.name,
+        kind: CompletionItemKind.Method,
+        insertText: `${method.name}: `,
+        documentation: {
+          kind: 'markdown',
+          value: method.description,
+        },
+      };
+      methods[operator].push(newMethod);
+    });
+  });
+
+  return methods;
+}
+
+export { formatBlocks, formatOperators, formatMethods };

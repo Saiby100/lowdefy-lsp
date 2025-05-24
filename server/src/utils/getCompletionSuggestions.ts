@@ -1,34 +1,43 @@
 import { CompletionItem, CompletionItemKind } from 'vscode-languageserver';
 import { getCursorContext } from './getCursorContext';
 import { Position } from 'vscode-languageserver-textdocument';
-import formatTypes from './formatTypes';
+import { formatBlocks, formatOperators, formatMethods } from './formatTypes';
 import { CursorContext } from '../types/cursor-context';
 
-const lowdefyTypes = formatTypes();
+const lowdefyBlocks = formatBlocks();
+const lowdefyOperators = formatOperators();
+const lowdefyMethods = formatMethods();
 
 function suggestActions({ keys, sequenceKey }: CursorContext): CompletionItem[] {
   if (!sequenceKey?.startsWith('on.') || keys[0] !== 'type') return [];
-  return lowdefyTypes.actions;
+  return lowdefyBlocks.actions;
 }
 
 function suggestConnections({ keys, sequenceKey }: CursorContext): CompletionItem[] {
   if (sequenceKey !== 'connections' || keys[0] !== 'type') return [];
-  return lowdefyTypes.connections;
+  return lowdefyBlocks.connections;
 }
 
-function suggestBlocks({ keys, sequenceKey }: CursorContext): CompletionItem[] {
-  if (sequenceKey !== 'blocks' || keys[0] !== 'type') return [];
+function suggestBlocks({ lastTyped, keys, sequenceKey }: CursorContext): CompletionItem[] {
+  if (sequenceKey !== 'blocks' || keys[0] !== 'type' || lastTyped !== '') return [];
   return [
-    ...lowdefyTypes.containers,
-    ...lowdefyTypes.displays,
-    ...lowdefyTypes.inputs,
-    ...lowdefyTypes.lists,
+    ...lowdefyBlocks.containers,
+    ...lowdefyBlocks.displays,
+    ...lowdefyBlocks.inputs,
+    ...lowdefyBlocks.lists,
   ];
 }
 
 function suggestOperators({ lastTyped }: CursorContext): CompletionItem[] {
-  if (!lastTyped?.startsWith('_')) return [];
-  return lowdefyTypes.operators;
+  if (!lastTyped?.startsWith('_') || lastTyped?.endsWith('.')) return [];
+  return lowdefyOperators;
+}
+
+function suggestMethods({ lastTyped }: CursorContext): CompletionItem[] {
+  if (!lastTyped?.startsWith('_') || !lastTyped?.endsWith('.')) return [];
+
+  const operator = lastTyped.slice(0, -1);
+  return lowdefyMethods[operator] || [];
 }
 
 function suggestDefaults({ keys, sequenceKey, lastTyped }: CursorContext): CompletionItem[] {
@@ -63,6 +72,7 @@ function getSuggestions(cursorContext: CursorContext): CompletionItem[] {
     ...suggestConnections(cursorContext),
     ...suggestBlocks(cursorContext),
     ...suggestOperators(cursorContext),
+    ...suggestMethods(cursorContext),
     ...suggestDefaults(cursorContext),
   ];
 }
@@ -75,8 +85,7 @@ function getCompletionSuggestions(
   const cursorContext = getCursorContext(documentText, documentJSON, position);
   const suggestions = getSuggestions(cursorContext);
 
-  // console.log('cursorContext', cursorContext);
-  // if (suggestions.length === 0) return defaultCompletions;
+  console.log('cursorContext', cursorContext);
   return suggestions;
 }
 
