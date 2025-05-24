@@ -87,7 +87,7 @@ function formatOperators(): CompletionItem[] {
     return {
       label: operator,
       kind: CompletionItemKind.Operator,
-      insertText: operators[operator]?.hasMethods ? operator : `${operator}: `,
+      insertText: operators[operator]?.hasMethods ? operator : `${operator}: \n\t`, // TODO: Get tabspace config
       documentation: {
         kind: 'markdown',
         value: operators[operator].description,
@@ -112,7 +112,7 @@ function formatMethods(): Record<string, CompletionItem[]> {
       const newMethod: CompletionItem = {
         label: method.name,
         kind: CompletionItemKind.Method,
-        insertText: `${method.name}: `,
+        insertText: `${method.name}: \n\t`,
         documentation: {
           kind: 'markdown',
           value: method.description,

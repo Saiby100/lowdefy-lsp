@@ -9,7 +9,7 @@ const lowdefyOperators = formatOperators();
 const lowdefyMethods = formatMethods();
 
 function suggestActions({ keys, sequenceKey }: CursorContext): CompletionItem[] {
-  if (!sequenceKey?.startsWith('on.') || keys[0] !== 'type') return [];
+  if (!sequenceKey?.startsWith('on') || keys[0] !== 'type') return [];
   return lowdefyBlocks.actions;
 }
 
