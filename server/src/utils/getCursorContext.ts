@@ -71,7 +71,7 @@ function getSequenceKey(path: (Node | Pair)[], sequenceKeys: string[] = []): str
   return undefined;
 }
 
-function getObject(
+function getCursorObject(
   path: (Node | Pair)[],
   documentJSON: Document.Parsed
 ): Record<string, any> | undefined {
@@ -124,7 +124,7 @@ function getCursorContext(
   const keys = getParentKeys(path);
   const sequenceKey = getSequenceKey(path);
   const lastTyped = getLastTyped(path);
-  const currentObject = getObject(path, documentJSON);
+  const currentObject = getCursorObject(path, documentJSON);
 
   return {
     currentObject,
