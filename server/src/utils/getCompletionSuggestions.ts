@@ -3,6 +3,7 @@ import { getCursorContext } from './getCursorContext';
 import { Position } from 'vscode-languageserver-textdocument';
 import { formatBlocks, formatOperators, formatMethods } from './formatTypes';
 import { CursorContext } from '../types/cursor-context';
+import { Document } from 'yaml';
 
 const lowdefyBlocks = formatBlocks();
 const lowdefyOperators = formatOperators();
@@ -83,7 +84,7 @@ function getSuggestions(cursorContext: CursorContext): CompletionItem[] {
 
 function getCompletionSuggestions(
   documentText: string,
-  documentJSON: Record<string, any>,
+  documentJSON: Document.Parsed,
   position: Position
 ): CompletionItem[] {
   const cursorContext = getCursorContext(documentText, documentJSON, position);

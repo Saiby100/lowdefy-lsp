@@ -1,4 +1,4 @@
-import { parseDocument } from 'yaml';
+import { parseDocument, Document } from 'yaml';
 import {
   CompletionItem,
   Diagnostic,
@@ -20,7 +20,7 @@ const connection = createConnection(ProposedFeatures.all);
 
 // Create a simple text document manager.
 const documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument);
-const parsedDocuments: Map<string, Record<string, any>> = new Map();
+const parsedDocuments: Map<string, Document.Parsed> = new Map();
 
 let hasConfigurationCapability: boolean = false;
 let hasWorkspaceFolderCapability: boolean = false;

@@ -1,4 +1,4 @@
-import { isMap, isSeq, Node, Pair, isPair, isScalar, Scalar } from 'yaml';
+import { isMap, isSeq, Node, Pair, isPair, isScalar, Scalar, Document } from 'yaml';
 import { Position } from 'vscode-languageserver-types';
 import { CursorContext } from '../types/cursor-context';
 
@@ -71,6 +71,16 @@ function getSequenceKey(path: (Node | Pair)[], sequenceKeys: string[] = []): str
   return undefined;
 }
 
+function getObject(
+  path: (Node | Pair)[],
+  documentJSON: Document.Parsed
+): Record<string, any> | undefined {
+  for (const node of path) {
+    if (isMap(node)) return node.toJS(documentJSON);
+  }
+  return undefined;
+}
+
 function getParentKeys(path: (Node | Pair)[]): string[] {
   const keys: string[] = [];
 
@@ -94,21 +104,30 @@ function getLastTyped(path: (Node | Pair)[]): string | undefined {
 
 function getCursorContext(
   documentText: string,
-  documentJSON: Record<string, any>,
+  documentJSON: Document.Parsed,
   position: Position
 ): CursorContext {
   const offset = posToOffset(position, documentText);
   const rootNode = documentJSON.contents as Node;
 
   if (!rootNode)
-    return { keys: [], offset, path: [], sequenceKey: undefined, lastTyped: undefined };
+    return {
+      currentObject: {},
+      keys: [],
+      offset,
+      path: [],
+      sequenceKey: undefined,
+      lastTyped: undefined,
+    };
 
   const path = findNodePath(offset, rootNode, []).reverse();
   const keys = getParentKeys(path);
   const sequenceKey = getSequenceKey(path);
   const lastTyped = getLastTyped(path);
+  const currentObject = getObject(path, documentJSON);
 
   return {
+    currentObject,
     keys,
     lastTyped,
     offset,
