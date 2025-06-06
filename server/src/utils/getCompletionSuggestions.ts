@@ -4,10 +4,13 @@ import { Position } from 'vscode-languageserver-textdocument';
 import { formatBlocks, formatOperators, formatMethods } from './formatTypes';
 import { CursorContext } from '../types/cursor-context';
 import { Document } from 'yaml';
+import formatSchemas from './formatSchemas';
 
 const lowdefyBlocks = formatBlocks();
 const lowdefyOperators = formatOperators();
 const lowdefyMethods = formatMethods();
+const lowdefyBlockSchema = formatSchemas();
+console.log('lowdefy blocks schema', JSON.stringify(lowdefyBlockSchema));
 
 function suggestActions({ keys, sequenceKey }: CursorContext): CompletionItem[] {
   if (!sequenceKey?.startsWith('on') || keys[0] !== 'type') return [];
@@ -39,6 +42,11 @@ function suggestMethods({ lastTyped }: CursorContext): CompletionItem[] {
 
   const operator = lastTyped.slice(0, -1);
   return lowdefyMethods[operator] || [];
+}
+
+function suggestBlockProps({ keys, currentObject }: CursorContext): CompletionItem[] {
+  console.log('lowdefyBlockSchema', lowdefyBlockSchema);
+  return [];
 }
 
 function suggestDefaults({ keys, sequenceKey, lastTyped }: CursorContext): CompletionItem[] {

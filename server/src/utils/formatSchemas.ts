@@ -1,92 +1,102 @@
-import { CompletionItem, CompletionItemKind } from 'vscode-languageserver';
+import { CompletionItemKind } from 'vscode-languageserver';
 
 import fs from 'fs';
 import path from 'path';
 
 import { Suggestions } from '../types/suggestions';
+import getSuggestionsObject from './getSuggestionsObject';
 
-function addCompletion(keys: string[], value: Record<string, any>, suggestions: Suggestions) {
-  let current: Suggestions = suggestions;
-  if (!current[keys[0]]) current = suggestions[keys[0]] = { completions: [] };
-  keys.forEach((key) => {
-    // if (key === 'completions') throw new Error('Cannot use "completions" as a key in suggestions.');
-    current = current[key] as Suggestions;
-    if (!current) {
-      current = { completions: [] };
-    }
-  });
-  suggestions.completions.push({
-    label: key,
+function buildDescription(value: Record<string, any>): string {
+  const valueType = typeof value.type === 'string' ? value.type : value.type?.join(' | ') || '';
+  let description = `${value.description || ''}\n**${valueType}**`;
+
+  if (value.enum) description += `\n**Enum**: \`${value.enum.join('`, `')}\``;
+  if (value.default) description += `\n**Default**: \`${JSON.stringify(value.default)}\``;
+
+  return description.trim();
+}
+
+function addCompletion(keys: string[], suggestions: Suggestions, value: Record<string, any>) {
+  const suggestionsObject = getSuggestionsObject(suggestions, keys);
+  suggestionsObject.completions.push({
+    label: keys[keys.length - 1],
     kind: CompletionItemKind.Keyword,
-    insertText: key,
+    insertText: keys[keys.length - 1],
     documentation: {
-      kind: 'plaintext',
-      value: value.description ?? '',
+      kind: 'markdown',
+      value: buildDescription(value),
     },
   });
 }
 
-function processObject(key: string, obj: Record<string, any>, suggestions: Suggestions) {
-  if (!obj.properties) {
-    addCompletion(key, obj, suggestions);
-    return;
-  }
-
-  Object.entries(obj.properties as Record<string, Record<string, any>>).forEach(([key, value]) => {
-    processProperty(key, value, completionItems);
-  });
-}
-
-function processArray(
-  key: string,
-  property: Record<string, any>,
-  completionItems: CompletionItem[]
+function processObjectKeys(
+  keyPath: string[],
+  suggestions: Suggestions,
+  value: Record<string, any>
 ) {
-  if (!property.items) {
-    completionItems.push({
-      label: key,
-      kind: CompletionItemKind.Keyword,
-      insertText: key,
-      documentation: {
-        kind: 'plaintext',
-        value: property.description ?? '',
-      },
-    });
+  if (!value) return;
+  if (value.type && typeof value.type === 'object') {
+    processProperty(keyPath, suggestions, value);
     return;
   }
 
-  // processProperty(key)
+  Object.entries(value as Record<string, Record<string, any>>).forEach(([key, value]) =>
+    processProperty([...keyPath, key], suggestions, value)
+  );
 }
 
-// Call if additionalProperties are explicityly set to false
 function processProperty(
-  keys: string[],
-  property: Record<string, any>,
-  suggestions: Suggestions
-): CompletionItem[] {
-  // if (typeof property.type === 'array') processMultipleTypes(key, property, completionItems);
-  // else if (property.type === 'object') processObject(key, property, completionItems);
-  // else if (property.type === 'array') processArray(key, property, completionItems);
-  // else if (property.type === 'string') processString(key, property, completionItems);
-  // // else
+  keyPath: string[],
+  suggestions: Suggestions,
+  value: Record<string, any>
+): Suggestions {
+  if (value.type === 'object')
+    processObjectKeys([...keyPath, 'properties'], suggestions, value.properties);
+  else if (value.type === 'array') {
+    processProperty(keyPath, suggestions, value.items);
+  }
 
-  return completionItems;
+  addCompletion(keyPath, suggestions, value);
+
+  return suggestions;
 }
 
-function formatSchemas(blockType: string): Record<string, Record<string, string[]>> {
-  const files = fs.readdirSync(path.join(__dirname, '../../schemas/'));
-  const schemas: Record<string, Record<string, string[]>> = {};
+function formatSchemas(): Record<string, Suggestions> {
+  const BASE_DIR = path.join(__dirname, '../resources/schemas');
+  const directories = fs.readdirSync(BASE_DIR);
+  const suggestions: Suggestions = { completions: [], children: {} };
+  const schema: Record<string, Suggestions> = {};
 
-  files.forEach((file) => {
-    const filePath = path.join(__dirname, '../../schemas', file);
-    const content = fs.readFileSync(filePath, 'utf-8');
-    const json = JSON.parse(content);
+  for (const dir of directories) {
+    const jsonFiles = fs.readdirSync(path.join(__dirname, `../resources/schemas/${dir}`));
+    const directory = path.join(BASE_DIR, dir);
+    for (const file of jsonFiles) {
+      console.log('Processing file:', file);
+      const filePath = path.join(directory, file);
+      const blockType = path.basename(file, '.json');
+      const content = fs.readFileSync(filePath, 'utf-8');
+      const parsed = JSON.parse(content);
 
-    const properties = Object.keys(json?.properties.properties || {});
-    const events = Object.keys(json?.events?.properties || {});
+      processProperty([], suggestions, parsed);
+      schema[blockType] = suggestions;
+      return schema; // TODO: Remove
+    }
+  }
+  // directories.forEach((dir: string) => {
+  //   const jsonFiles = fs.readdirSync(path.join(__dirname, `../resources/schemas/${dir}`));
+  //   const directory = path.join(BASE_DIR, dir);
+  //   jsonFiles.forEach((file: string) => {
+  //     const filePath = path.join(directory, file);
+  //     const blockType = path.basename(file, '.json');
+  //     const content = fs.readFileSync(filePath, 'utf-8');
+  //     const parsed = JSON.parse(content);
 
-    const fileName = path.basename(file, '.json');
-    schemas[fileName] = { properties, events };
-  });
-  return schemas;
+  //     processProperty([], suggestions, parsed);
+  //     schema[blockType] = suggestions;
+  //   });
+  // });
+
+  return schema;
 }
+
+export default formatSchemas;
