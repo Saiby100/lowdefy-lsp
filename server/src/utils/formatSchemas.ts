@@ -3,8 +3,8 @@ import { CompletionItemKind } from 'vscode-languageserver';
 import fs from 'fs';
 import path from 'path';
 
-import { Suggestions } from '../types/suggestions';
-import getSuggestionsObject from './getSuggestionsObject';
+// import { Suggestions } from '../types/suggestions';
+// import getSuggestionsObject from './getSuggestionsObject';
 
 function buildDescription(value: Record<string, any>): string {
   const valueType = typeof value.type === 'string' ? value.type : value.type?.join(' | ') || '';
@@ -16,56 +16,62 @@ function buildDescription(value: Record<string, any>): string {
   return description.trim();
 }
 
-function addCompletion(keys: string[], suggestions: Suggestions, value: Record<string, any>) {
-  const suggestionsObject = getSuggestionsObject(suggestions, keys);
-  suggestionsObject.completions.push({
-    label: keys[keys.length - 1],
-    kind: CompletionItemKind.Keyword,
-    insertText: keys[keys.length - 1],
-    documentation: {
-      kind: 'markdown',
-      value: buildDescription(value),
-    },
+function processObject(
+  suggestions: Record<string, any>,
+  { additionalProperties, properties }: Record<string, any>
+) {
+  if (additionalProperties !== false || !properties) return;
+
+  Object.entries(properties as Record<string, any>).forEach(([key, value]) => {
+    if (value.type === 'object') {
+      suggestions[key] = { type: 'object' };
+      processObject(suggestions[key], value.properties);
+    }
+    if (value.type === 'array') {
+      suggestions[key] = { type: 'array' };
+      processObject(suggestions, value.items);
+    }
+    if (value.oneOf && typeof Array.isArray(value.oneOf)) {
+      suggestions[key] = { type: 'oneOf' };
+      for (const item of value.oneOf) {
+      }
+    }
   });
 }
 
-function processObjectKeys(
-  keyPath: string[],
-  suggestions: Suggestions,
-  value: Record<string, any>
-) {
-  if (!value) return;
-  if (value.type && typeof value.type === 'object') {
-    processProperty(keyPath, suggestions, value);
-    return;
-  }
-
-  Object.entries(value as Record<string, Record<string, any>>).forEach(([key, value]) =>
-    processProperty([...keyPath, key], suggestions, value)
-  );
-}
-
 function processProperty(
-  keyPath: string[],
-  suggestions: Suggestions,
-  value: Record<string, any>
-): Suggestions {
-  if (value.type === 'object')
-    processObjectKeys([...keyPath, 'properties'], suggestions, value.properties);
-  else if (value.type === 'array') {
-    processProperty(keyPath, suggestions, value.items);
+  suggestions: Record<string, any>,
+  { type, oneOf, properties }: Record<string, any>
+) {
+  if (!type && !oneOf) return;
+  if (type === 'object') {
+    processObject(suggestions, properties);
+  } else if (Array.isArray(oneOf)) {
+    oneOf.forEach((propertyType) => {});
   }
-
-  addCompletion(keyPath, suggestions, value);
-
-  return suggestions;
 }
 
-function formatSchemas(): Record<string, Suggestions> {
+function transformSchema(suggestions: Record<string, any>, data: Record<string, any>) {
+  if (!data.properties && !data.events) {
+    console.error('Schema is missing properties and events:', data);
+    return {};
+  }
+
+  if (data.properties) {
+    suggestions.properties = { type: 'object' };
+    processObject(suggestions.properties, data.properties);
+  }
+
+  if (data.events) {
+    suggestions.events = { type: 'object' };
+    processObject(suggestions.events, data.events);
+  }
+}
+
+function formatSchemas(): Record<string, any> {
   const BASE_DIR = path.join(__dirname, '../resources/schemas');
   const directories = fs.readdirSync(BASE_DIR);
-  const suggestions: Suggestions = { completions: [], children: {} };
-  const schema: Record<string, Suggestions> = {};
+  const schema: Record<string, any> = {};
 
   for (const dir of directories) {
     const jsonFiles = fs.readdirSync(path.join(__dirname, `../resources/schemas/${dir}`));
@@ -76,8 +82,9 @@ function formatSchemas(): Record<string, Suggestions> {
       const blockType = path.basename(file, '.json');
       const content = fs.readFileSync(filePath, 'utf-8');
       const parsed = JSON.parse(content);
+      const suggestions: Record<string, any> = {};
 
-      processProperty([], suggestions, parsed);
+      transformSchema(suggestions, parsed);
       schema[blockType] = suggestions;
       return schema; // TODO: Remove
     }
