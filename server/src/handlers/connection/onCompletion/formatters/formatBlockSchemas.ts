@@ -88,7 +88,7 @@ function formatBlockSchemas(): Record<string, any> {
   const schema: Record<string, any> = {};
 
   const blockSchema = fs.readdirSync(BASE_DIR);
-  for (const file of blockSchema) {
+  blockSchema.forEach((file) => {
     const filePath = path.join(BASE_DIR, file);
     const blockType = path.basename(file, '.json');
     const content = fs.readFileSync(filePath, 'utf-8');
@@ -101,7 +101,7 @@ function formatBlockSchemas(): Record<string, any> {
     } catch (error) {
       console.error(`Error transforming schema for ${blockType}:`);
     }
-  }
+  });
 
   return schema;
 }
