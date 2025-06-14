@@ -4,6 +4,7 @@ import { Position } from 'vscode-languageserver-types';
 import { CursorContext } from './types/cursor-context';
 
 import {
+  getBlockKeys,
   getCurrentObject,
   getLastTyped,
   getNodePath,
@@ -22,6 +23,7 @@ function getCursorContext(
 
   if (!rootNode)
     return {
+      blockKeys: [],
       currentObject: {},
       keys: [],
       offset,
@@ -35,8 +37,10 @@ function getCursorContext(
   const sequenceKey = getSequenceKey(path);
   const lastTyped = getLastTyped(path);
   const currentObject = getCurrentObject(path, documentJSON);
+  const blockKeys = getBlockKeys(currentObject, keys, lastTyped, sequenceKey);
 
   return {
+    blockKeys,
     currentObject,
     keys,
     lastTyped,
