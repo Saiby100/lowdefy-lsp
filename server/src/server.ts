@@ -32,5 +32,4 @@ connection.onInitialized(onInitialized(context));
 connection.onDidChangeConfiguration(onDidChangeConfig(context));
 connection.onCompletion(onCompletion(context));
 connection.onCompletionResolve(onCompletionResolve(context));
-
 connection.listen();
