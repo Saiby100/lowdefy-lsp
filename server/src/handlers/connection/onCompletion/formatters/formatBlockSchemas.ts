@@ -10,10 +10,10 @@ function buildDescription({
   default: defaultValue,
 }: Record<string, any>): string {
   const valueType = typeof dataType === 'string' ? dataType : dataType?.join(' | ') || '';
-  let desc = `${description || ''}\n**${valueType}**`;
+  let desc = `${description || ''}\n**Type:** ${valueType}`;
 
-  if (enumValues) desc += `\n**Enum**: \`${enumValues.join('`, `')}\``;
-  if (defaultValue) desc += `\n**Default**: \`${JSON.stringify(defaultValue)}\``;
+  if (enumValues) desc += `\n**Enum**: ${enumValues.join('`, `')}`;
+  if (defaultValue) desc += `\n**Default**: ${JSON.stringify(defaultValue)}`;
 
   return desc.trim();
 }
@@ -34,12 +34,12 @@ function addCompletion(key: string, suggestions: Record<string, any>, data: Reco
 
 function processObject(suggestions: Record<string, any>, data: Record<string, any>) {
   if (!data) return;
-  const { additionalProperties, properties } = data;
-  if (additionalProperties !== false || !properties) return;
+  if (!data.properties) return;
 
-  Object.entries(properties as Record<string, any>).forEach(([key, value]) => {
+  Object.entries(data.properties as Record<string, any>).forEach(([key, value]) => {
     suggestions[key] = { _type: data.type };
     processProperty(key, suggestions[key], value);
+    addCompletion(key, suggestions, value);
   });
 }
 
@@ -53,9 +53,10 @@ function processProperty(key: string, suggestions: Record<string, any>, data: Re
     oneOf.forEach((property) => {
       processProperty(key, suggestions, property);
     });
+  } else if (type === 'array' && data.items) {
+    suggestions._type = 'array';
+    processObject(suggestions, data.items);
   }
-
-  addCompletion(key, suggestions, data);
 }
 
 function transformBlockSchema(suggestions: Record<string, any>, data: Record<string, any>) {
@@ -84,7 +85,7 @@ function transformBlockSchema(suggestions: Record<string, any>, data: Record<str
 }
 
 function formatBlockSchemas(): Record<string, any> {
-  const BASE_DIR = path.join(__dirname, '../resources/schemas/blocks');
+  const BASE_DIR = path.join(__dirname, '../../../../resources/schemas/blocks');
   const schema: Record<string, any> = {};
 
   const blockSchema = fs.readdirSync(BASE_DIR);

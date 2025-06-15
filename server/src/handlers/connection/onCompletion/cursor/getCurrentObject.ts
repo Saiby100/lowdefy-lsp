@@ -5,7 +5,12 @@ function getCurrentObject(
   documentJSON: Document.Parsed
 ): Record<string, any> | undefined {
   for (const node of path) {
-    if (isMap(node)) return node.toJS(documentJSON);
+    if (isMap(node)) {
+      const currentObject = node.toJS(documentJSON);
+      if (typeof currentObject.type === 'string' && typeof currentObject.id === 'string') {
+        return currentObject;
+      }
+    }
   }
   return undefined;
 }

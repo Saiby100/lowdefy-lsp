@@ -7,13 +7,13 @@ function getBlockKeys(
   if (!currentObject || !sequenceKey) return [];
   if (typeof currentObject.type !== 'string') return [];
 
-  const blockKeys: string[] = [currentObject.type];
+  const blockKeys: string[] = [];
   for (const key of keys) {
     if (key === sequenceKey) break;
     if (key === lastTyped) continue;
-    blockKeys.push(key);
+    blockKeys.unshift(key);
   }
-  return blockKeys;
+  return [currentObject.type, ...blockKeys];
 }
 
 export default getBlockKeys;

@@ -6,7 +6,6 @@ import { Action } from '../types/action';
 const actions: Action = actionsJson;
 
 function formatActions(): CompletionItem[] {
-  console.log('Formatting actions for completion items');
   return Object.keys(actions).map((action) => ({
     label: action,
     kind: CompletionItemKind.Function,
