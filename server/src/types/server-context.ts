@@ -9,4 +9,5 @@ export default interface ServerContext {
   parsedDocuments: Map<string, Document.Parsed>;
   capabilities: Record<string, boolean>;
   documentSettings: Map<string, Thenable<DocumentSettings>>;
+  validate: (key: string, value: Record<string, any>) => any;
 }
