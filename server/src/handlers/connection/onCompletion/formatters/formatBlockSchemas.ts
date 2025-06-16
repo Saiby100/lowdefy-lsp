@@ -10,10 +10,10 @@ function buildDescription({
   default: defaultValue,
 }: Record<string, any>): string {
   const valueType = typeof dataType === 'string' ? dataType : dataType?.join(' | ') || '';
-  let desc = `${description || ''}\n**Type:** ${valueType}`;
+  let desc = `${description || ''}\n\n**Type:** ${valueType}`;
 
-  if (enumValues) desc += `\n**Enum**: ${enumValues.join('`, `')}`;
-  if (defaultValue) desc += `\n**Default**: ${JSON.stringify(defaultValue)}`;
+  if (enumValues) desc += `\n\n**Enum**: ${enumValues.join(', ')}`;
+  if (defaultValue) desc += `\n\n**Default**: ${JSON.stringify(defaultValue)}`;
 
   return desc.trim();
 }
