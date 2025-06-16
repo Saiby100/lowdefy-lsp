@@ -100,7 +100,7 @@ function formatBlockSchemas(): Record<string, any> {
       transformBlockSchema(suggestions, parsed);
       schema[blockType] = suggestions;
     } catch (error) {
-      console.error(`Error transforming schema for ${blockType}:`);
+      console.error(`Error transforming schema for ${blockType}:`, error);
     }
   });
 
