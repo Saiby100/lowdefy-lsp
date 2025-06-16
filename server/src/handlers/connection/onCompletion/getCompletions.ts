@@ -5,7 +5,7 @@ import getCursorContext from './getCursorContext';
 import { Document } from 'yaml';
 import getSuggestions from './suggestions';
 
-function getCompletionSuggestions(
+function getCompletions(
   documentText: string,
   documentJSON: Document.Parsed,
   position: Position
@@ -17,4 +17,4 @@ function getCompletionSuggestions(
   return suggestions;
 }
 
-export default getCompletionSuggestions;
+export default getCompletions;
