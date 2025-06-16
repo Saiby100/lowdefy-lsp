@@ -1,0 +1,278 @@
+{
+  "Affix": {
+    "type": "Affix",
+    "category": "container",
+    "schema": "../plugins/blocks/blocks-antd/src/blocks/Affix/schema.json",
+    "description": "An Affix block makes it's content stick to the viewport.\nThe Affix has a single area, `content`.\n",
+    "areas": [
+      "content"
+    ]
+  },
+  "Alert": {
+    "type": "Alert",
+    "category": "container",
+    "schema": "../plugins/blocks/blocks-antd/src/blocks/Alert/schema.json",
+    "description": "Alert is used to render user feedback messages in a Alert styled frame.\n",
+    "areas": [
+      "action"
+    ]
+  },
+  "Badge": {
+    "type": "Badge",
+    "category": "container",
+    "schema": "../plugins/blocks/blocks-antd/src/blocks/Badge/schema.json",
+    "description": "Small numerical value or status descriptor for UI elements. Badge is used as a container block, describing its content block.\n",
+    "areas": [
+      "content"
+    ]
+  },
+  "Box": {
+    "type": "Box",
+    "category": "container",
+    "schema": "../plugins/blocks/blocks-basic/src/blocks/Box/schema.json",
+    "description": "A Box is a container that places sub-blocks into a html `<div>`.\nThe Box has a single area, `content`.\n",
+    "areas": [
+      "content"
+    ]
+  },
+  "Card": {
+    "type": "Card",
+    "category": "container",
+    "schema": "../plugins/blocks/blocks-antd/src/blocks/Card/schema.json",
+    "description": "A Card container places blocks on a white background with a card border.\nThe Card has `content`, `title` and `extra` areas. The `title` area replaces `properties.title` if defined.\n",
+    "areas": [
+      "content",
+      "cover",
+      "extra",
+      "title"
+    ]
+  },
+  "Carousel": {
+    "type": "Carousel",
+    "category": "container",
+    "schema": "../plugins/blocks/blocks-antd/src/blocks/Carousel/schema.json",
+    "description": "Carousel to navigate through different slides consisting of blocks.\nThe key of each slide is the area keys of the container.\n### Methods\n\n  - `goTo`: Set the current slide to a specific slide.\n    - `slide: string`: The key of the chosen slide.\n    - `dontAnimate: boolean`: If true, the transition happens without animation.\n  - `next`: Set the next slide as the current slide.\n  - `prev`: Set the previous slide as the current slide.\n",
+    "areas": [
+      "slide1",
+      "slide2",
+      "slide3"
+    ]
+  },
+  "Collapse": {
+    "type": "Collapse",
+    "category": "container",
+    "schema": "../plugins/blocks/blocks-antd/src/blocks/Collapse/schema.json",
+    "description": "A container with collapsible panels. The area keys are user defined, and should be listed under the `panels` property. Each panel also has a 'extra' content area, the key of which can be defined in the `panels.$.extraKey` property.\n",
+    "areas": [
+      "panel1",
+      "panel1Extra",
+      "panel2",
+      "panel3"
+    ]
+  },
+  "Comment": {
+    "type": "Comment",
+    "category": "container",
+    "schema": "../plugins/blocks/blocks-antd/src/blocks/Comment/schema.json",
+    "description": "A Comment renders a comment list item. It can be used as both a `display` or `container` category block.\n",
+    "areas": [
+      "content",
+      "actions",
+      "author",
+      "title"
+    ]
+  },
+  "ConfirmModal": {
+    "type": "ConfirmModal",
+    "category": "container",
+    "schema": "../plugins/blocks/blocks-antd/src/blocks/ConfirmModal/schema.json",
+    "description": "A popup container, presenting the user with a modal confirmation dialog.\nThe ConfirmModal has a single area, `content`.\n\n> To open the confirm modal, invoke the open method.\n",
+    "areas": [
+      "content"
+    ]
+  },
+  "Content": {
+    "type": "Content",
+    "category": "container",
+    "schema": "../plugins/blocks/blocks-antd/src/blocks/Content/schema.json",
+    "description": "The `Content` block provides a page container for a [content](https://4x.ant.design/components/layout/) area.\n",
+    "areas": [
+      "content"
+    ]
+  },
+  "Descriptions": {
+    "type": "Descriptions",
+    "category": "container",
+    "schema": "../plugins/blocks/blocks-antd/src/blocks/Descriptions/schema.json",
+    "description": "Display multiple read-only fields in groups. Commonly used to display a detailed set of data.\n",
+    "areas": [
+      "extra"
+    ]
+  },
+  "Drawer": {
+    "type": "Drawer",
+    "category": "container",
+    "schema": "../plugins/blocks/blocks-antd/src/blocks/Drawer/schema.json",
+    "description": "A panel which slides in from the edge of the screen.\nThe Drawer has a single area, `content`.\n\n> To open the drawer, invoke a drawer method.\n",
+    "areas": [
+      "content",
+      "extra"
+    ]
+  },
+  "Footer": {
+    "type": "Footer",
+    "category": "container",
+    "schema": "../plugins/blocks/blocks-antd/src/blocks/Footer/schema.json",
+    "description": "The `Footer` block provides a page container for a [footer](https://4x.ant.design/components/layout/) area with content.\n",
+    "areas": [
+      "content"
+    ]
+  },
+  "GoogleMaps": {
+    "type": "GoogleMaps",
+    "category": "container",
+    "schema": "../plugins/blocks/blocks-google-maps/src/blocks/GoogleMaps/GoogleMaps.json",
+    "description": "This is a Lowdefy block which implements the following from the [Google Maps API](https://developers.google.com/maps/documentation/javascript/overview):\n  - [Map](https://developers.google.com/maps/documentation/javascript/reference/map#MapOptions)\n  - [Markers](https://developers.google.com/maps/documentation/javascript/reference/marker#MarkerOptions)\n  - [Marker Clusterers](https://developers.google.com/maps/documentation/javascript/marker-clustering)\n\nIn order to use this block, it must be wrapped in a [`GoogleMapsScript`](./GoogleMapsScript) block.\n\n### Properties\n\n- `apiKey: string`: Your Google Maps API key.\n- `libraries: array`: List of [Google libraries](https://developers.google.com/maps/documentation/javascript/libraries).\n- `map: mapOptions`: All [map options](https://developers.google.com/maps/documentation/javascript/reference/map#MapOptions).\n  - `center: { lat: number, lng: number }`: A coordinate position object by which to center the map.\n  - `zoom: number`: Map zoom level.\n  - `options: mapOptions`: All other [map options](https://developers.google.com/maps/documentation/javascript/reference/map#MapOptions).\n- `style: cssObject`: A style object applied to the map element.\n- `markers: markerOptions[]`: A list of Markers with marker options, see more [Javascript API Markers](https://developers.google.com/maps/documentation/javascript/markers).\n  - `position: { lat: number, lng: number }`: Position of marker on map.\n  - `label: string`: Label displayed on marker.\n- `markerClusterers: markerClustererOptions[]`: A list of MarkerClusterers with marker clusterer options.\n  - `markers: markerOptions[]`: A list of Markers with marker options, see more [Javascript API Markers](https://developers.google.com/maps/documentation/javascript/markers).\n    - `position: { lat: number, lng: number }`: Position of marker on map.\n    - `label: string`: Label displayed on marker.\n  - `options: markerClustererOptions`: All other [marker clusterer options](https://react-google-maps-api-docs.netlify.app/#markerclusterer).\n- `infoWindow: infoWindowOptions`: All infoWindow options, see [infoWindow options](https://developers.google.com/maps/documentation/javascript/reference/info-window#InfoWindowOptions).\n  - `position: { lat: number, lng: number }`: Position of infoWindow on map.\n  - `visible: boolean`: When visible is true, blocks inside infoWindow content area will be rendered.\n\n### Events\n\n- `onBoundsChanged`: Trigger onBoundsChanged actions when the bounds of the map are changed, returns `_event`\nobject:\n  - `bounds`:\n    - `east`: latitudinal coordinate\n    - `north`: longitudinal coordinate\n    - `south`: longitudinal coordinate\n    - `west`: latitudinal coordinate\n  - `center`:\n    - `lat`: latitudinal coordinate\n    - `lng`: longitudinal coordinate\n  - `zoom`: zoom level\n- `onCenterChanged`: Trigger onCenterChanged actions when the center of the map is changed, returns `_event`\nobject:\n  - `bounds`:\n    - `east`: latitudinal coordinate\n    - `north`: longitudinal coordinate\n    - `south`: longitudinal coordinate\n    - `west`: latitudinal coordinate\n  - `center`:\n    - `lat`: latitudinal coordinate\n    - `lng`: longitudinal coordinate\n  - `zoom`: zoom level\n- `onClick`: Trigger onClick actions when the map is clicked, returns `_event` object:\n  - `domEvent`: event object\n  - `latLng`:\n    - `lat`: latitudinal coordinate\n    - `lng`: longitudinal coordinate\n  - `pixel`:\n    - `x`: x position on map block\n    - `y`: y position on map block\n- `onClusterClick`: Trigger onClusterClick actions when a cluster is clicked, returns `_event`\n- `onMarkerClick`: Trigger onMarkerClick actions when a marker is clicked, returns `_event`\nobject:\n  - `domEvent`: event object\n  - `latLng`:\n    - `lat`: latitudinal coordinate\n    - `lng`: longitudinal coordinate\n  - `pixel`:\n    - `x`: x position on map block\n    - `y`: y position on map block\n- `onZoomChanged`: Trigger onZoomChanged actions when the zoom on the map is changed. returns `_event`\nobject:\n  - `bounds`:\n    - `east`: latitudinal coordinate\n    - `north`: longitudinal coordinate\n    - `south`: longitudinal coordinate\n    - `west`: latitudinal coordinate\n  - `center`:\n    - `lat`: latitudinal coordinate\n    - `lng`: longitudinal coordinate\n  - `zoom`: zoom level\n\n### Methods\n\n- `fitBounds`: Fit map to given bounds.\n  - `bounds: { lat: number, lng: number } []`: A list of the coordinate positions of the boundary points.\n  - `zoom: number`: Map zoom level.\n- `getBounds`: Returns the bounds of the map.\n- `getCenter`: Returns the center of the map.\n- `getZoom`: Returns the zoom of the map.\n"
+  },
+  "GoogleMapsHeatmap": {
+    "type": "GoogleMapsHeatmap",
+    "category": "container",
+    "schema": "../plugins/blocks/blocks-google-maps/src/blocks/GoogleMapsHeatmap/GoogleMapsHeatmap.json",
+    "description": "This is a Lowdefy block which implements [Heatmap](https://developers.google.com/maps/documentation/javascript/reference/visualization#HeatmapLayerOptions) from the [Google Maps API](https://developers.google.com/maps/documentation/javascript/overview).\n\nIn order to use this block, it must be wrapped in a [`GoogleMapsScript`](./GoogleMapsScript) block with the visualization library specified.\n\n### Properties\n\n- `apiKey: string`: Your Google Maps API key.\n- `libraries: array`: List of [Google libraries](https://developers.google.com/maps/documentation/javascript/libraries).\n- `map: mapOptions`: All [map options](https://developers.google.com/maps/documentation/javascript/reference/map#MapOptions).\n  - `center: { lat: number, lng: number }`: A coordinate position object by which to center the map.\n  - `zoom: number`: Map zoom level.\n  - `options: mapOptions`: All other [map options](https://developers.google.com/maps/documentation/javascript/reference/map#MapOptions).\n- `heatmap: heatmapOptions`: Add a heatmap layer, see more [heatmap options](https://developers.google.com/maps/documentation/javascript/reference/visualization#HeatmapLayerOptions). This will automatically load the `visualization` library, which must be added to the list of libraries in the `libraries` property of the `GoogleMapsScript` block.\n  - `data: { lat: number, lng: number, weight: number } []`: A list of heatmap data points.\n- `style: cssObject`: A style object applied to the map element.\n- `infoWindow: infoWindowOptions`: All infoWindow options, see [infoWindow options](https://developers.google.com/maps/documentation/javascript/reference/info-window#InfoWindowOptions).\n  - `position: { lat: number, lng: number }`: Position of infoWindow on map.\n  - `visible: boolean`: When visible is true, blocks inside infoWindow content area will be rendered.\n\n### Events\n\n- `onBoundsChanged`: Trigger onBoundsChanged actions when the bounds of the map are changed, returns `_event`\nobject:\n  - `bounds`:\n    - `east`: latitudinal coordinate\n    - `north`: longitudinal coordinate\n    - `south`: longitudinal coordinate\n    - `west`: latitudinal coordinate\n  - `center`:\n    - `lat`: latitudinal coordinate\n    - `lng`: longitudinal coordinate\n  - `zoom`: zoom level\n- `onCenterChanged`: Trigger onCenterChanged actions when the center of the map is changed, returns `_event`\nobject:\n  - `bounds`:\n    - `east`: latitudinal coordinate\n    - `north`: longitudinal coordinate\n    - `south`: longitudinal coordinate\n    - `west`: latitudinal coordinate\n  - `center`:\n    - `lat`: latitudinal coordinate\n    - `lng`: longitudinal coordinate\n  - `zoom`: zoom level\n- `onClick`: Trigger onClick actions when the map is clicked, returns `_event` object:\n  - `domEvent`: event object\n  - `latLng`:\n    - `lat`: latitudinal coordinate\n    - `lng`: longitudinal coordinate\n  - `pixel`:\n    - `x`: x position on map block\n    - `y`: y position on map block\n- `onClusterClick`: Trigger onClusterClick actions when a cluster is clicked, returns `_event`\n- `onMarkerClick`: Trigger onMarkerClick actions when a marker is clicked, returns `_event`\nobject:\n  - `domEvent`: event object\n  - `latLng`:\n    - `lat`: latitudinal coordinate\n    - `lng`: longitudinal coordinate\n  - `pixel`:\n    - `x`: x position on map block\n    - `y`: y position on map block\n- `onZoomChanged`: Trigger onZoomChanged actions when the zoom on the map is changed. returns `_event`\nobject:\n  - `bounds`:\n    - `east`: latitudinal coordinate\n    - `north`: longitudinal coordinate\n    - `south`: longitudinal coordinate\n    - `west`: latitudinal coordinate\n  - `center`:\n    - `lat`: latitudinal coordinate\n    - `lng`: longitudinal coordinate\n  - `zoom`: zoom level\n\n### Methods\n\n- `fitBounds`: Fit map to given bounds.\n  - `bounds: { lat: number, lng: number } []`: A list of the coordinate positions of the boundary points.\n  - `zoom: number`: Map zoom level.\n- `getBounds`: Returns the bounds of the map.\n- `getCenter`: Returns the center of the map.\n- `getZoom`: Returns the zoom of the map.\n"
+  },
+  "GoogleMapsScript": {
+    "type": "GoogleMapsScript",
+    "category": "container",
+    "schema": "../plugins/blocks/blocks-google-maps/src/blocks/GoogleMapsScript/GoogleMapsScript.json",
+    "description": "This is a Lowdefy blocks wrapper for the [Google Maps API](https://developers.google.com/maps/documentation/javascript/overview). It is used to specify the api key and libraries to be used for the [`GoogleMaps`](./GoogleMaps) and [`GoogleMapsHeatmap`](./GoogleMapsHeatmap) blocks, and wraps these blocks as a parent container. Only one `GoogleMapsScript` blocks should be used on a page.v\n\n### Properties\n\n- `apiKey: string`: Your Google Maps API key.\n- `libraries: array`: List of [Google libraries](https://developers.google.com/maps/documentation/javascript/libraries).\n"
+  },
+  "Header": {
+    "type": "Header",
+    "category": "container",
+    "schema": "../plugins/blocks/blocks-antd/src/blocks/Header/schema.json",
+    "description": "The `Header` block provides a page container for a [header](https://4x.ant.design/components/layout/) area with content.\n",
+    "areas": [
+      "content"
+    ]
+  },
+  "Label": {
+    "type": "Label",
+    "category": "container",
+    "schema": "../plugins/blocks/blocks-antd/src/blocks/Label/schema.json",
+    "description": "A container that provides a label for a input block. Most input block use Label by default.\n",
+    "areas": [
+      "content"
+    ]
+  },
+  "Layout": {
+    "type": "Layout",
+    "category": "container",
+    "schema": "../plugins/blocks/blocks-antd/src/blocks/Layout/schema.json",
+    "description": "The `Layout` block provides a page container for a [layout](https://4x.ant.design/components/layout/) area with content. It can be used as a wrapper, in which `Header`, `Sider`, `Content,` `Footer` or `Layout` itself can be nested.\n",
+    "areas": [
+      "content"
+    ]
+  },
+  "Modal": {
+    "type": "Modal",
+    "category": "container",
+    "schema": "../plugins/blocks/blocks-antd/src/blocks/Modal/schema.json",
+    "description": "A popup container, presenting the user with a modal dialog.\nThe Modal has a `content` and a `footer` content area. The default `footer` area is the `Ok` and `Cancel` buttons; defining a `footer` area overwrites these buttons.\n\n> To open the modal, invoke a modal method.\n",
+    "areas": [
+      "content",
+      "footer"
+    ]
+  },
+  "PageHeaderMenu": {
+    "type": "PageHeaderMenu",
+    "category": "container",
+    "schema": "../plugins/blocks/blocks-antd/src/blocks/PageHeaderMenu/schema.json",
+    "description": "The Page Header Menu block provides a structured layout for a page with a header containing a menu, content and footer area.\n",
+    "areas": [
+      "content",
+      "footer",
+      "header"
+    ]
+  },
+  "PageSiderMenu": {
+    "type": "PageSiderMenu",
+    "category": "container",
+    "schema": "../plugins/blocks/blocks-antd/src/blocks/PageSiderMenu/schema.json",
+    "description": "The Page Sider Menu block provides a structured layout for a page with a header, sider including menu, content and footer area.\n",
+    "areas": [
+      "content",
+      "footer",
+      "header",
+      "sider"
+    ]
+  },
+  "Popover": {
+    "type": "Popover",
+    "category": "container",
+    "schema": "../plugins/blocks/blocks-antd/src/blocks/Popover/schema.json",
+    "description": "A popover container. Can be used to display extra information or options inside the popover.\n",
+    "areas": [
+      "content",
+      "popover"
+    ]
+  },
+  "Result": {
+    "type": "Result",
+    "category": "container",
+    "schema": "../plugins/blocks/blocks-antd/src/blocks/Result/schema.json",
+    "description": "Used to provide feedback the results of a task or error.\n",
+    "areas": [
+      "content",
+      "extra"
+    ]
+  },
+  "Sider": {
+    "type": "Sider",
+    "category": "container",
+    "schema": "../plugins/blocks/blocks-antd/src/blocks/Sider/schema.json",
+    "description": "The `Sider` block provides a page container for a [sider](https://4x.ant.design/components/layout/) area with content.\n",
+    "areas": [
+      "content"
+    ]
+  },
+  "Span": {
+    "type": "Span",
+    "category": "container",
+    "schema": "../plugins/blocks/blocks-basic/src/blocks/Span/schema.json",
+    "description": "A Span is a container that places sub-blocks into a html `<span>`.\nThe Span has a single area, `content`.\n",
+    "areas": [
+      "content"
+    ]
+  },
+  "Spinner": {
+    "type": "Spinner",
+    "category": "container",
+    "schema": "../plugins/blocks/blocks-loaders/src/blocks/Spinner/schema.json",
+    "description": "A loading spinner. Can be used as a display block, or as container wrapping another block, with the `spinning` property set in `state`.\n",
+    "areas": [
+      "content"
+    ]
+  },
+  "Tabs": {
+    "type": "Tabs",
+    "category": "container",
+    "schema": "../plugins/blocks/blocks-antd/src/blocks/Tabs/schema.json",
+    "description": "Tabs to easily switch between different views.\nThe key of each tabs is the area keys of the container and there is an `extra` content area.\n",
+    "areas": [
+      "tab1",
+      "tab2",
+      "tab3",
+      "panel3",
+      "extra"
+    ]
+  },
+  "Tooltip": {
+    "type": "Tooltip",
+    "category": "container",
+    "schema": "../plugins/blocks/blocks-antd/src/blocks/Tooltip/schema.json",
+    "description": "A simple text popup tip. Can be used to display extra information about its children blocks.\n",
+    "areas": [
+      "content"
+    ]
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "ControlledList": {
+    "type": "ControlledList",
+    "category": "list",
+    "schema": "../plugins/blocks/blocks-antd/src/blocks/ControlledList/schema.json",
+    "description": "The ControlledList block renders a content area for all items in the array into the list card and provides easy UI elements to add or remove items in the list. All list blocks create a array in state at their block `id`. The list content areas are rendered for each index in the array. See the [List Concept](/lists) page for a detailed description on how to work with lists.\n",
+    "areas": ["content"]
+  },
+  "List": {
+    "type": "List",
+    "category": "list",
+    "schema": "../plugins/blocks/blocks-basic/src/blocks/List/schema.json",
+    "description": "The List block renders a content area for all items in the array. All list blocks create a array in state at their block `id`. The list content areas are rendered for each index in the array. See the [List Concept](/lists) page for a detailed description on how to work with lists.\n",
+    "areas": ["content"]
+  },
+  "TimelineList": {
+    "type": "TimelineList",
+    "category": "list",
+    "schema": "../plugins/blocks/blocks-antd/src/blocks/TimelineList/schema.json",
+    "description": "The TimelineList block renders a content area for all items in the array. All list blocks create a array in state at their block `id`. The list content areas are rendered for each index in the array. See the [List Concept](/lists) page for a detailed description on how to work with lists.\n\nThe timeline nodes can be customized based on the array data.\n",
+    "areas": ["content"]
+  }
+}

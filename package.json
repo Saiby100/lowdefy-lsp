@@ -9,23 +9,34 @@
   "engines": {
     "vscode": "^1.75.0"
   },
-  "activationEvents": [
-    "onLanguage:yaml"
-  ],
   "main": "./client/out/extension",
   "contributes": {
     "configuration": {
       "type": "object",
       "title": "Lowdefy LSP configuration",
       "properties": {
-          "lowdefyLanguageServer.maxNumberOfProblems": {
-              "scope": "resource",
-              "type": "number",
-              "default": 100,
-              "description": "Controls the maximum number of problems produced by the server."
-          }
+        "lowdefyLanguageServer.maxNumberOfProblems": {
+          "scope": "resource",
+          "type": "number",
+          "default": 100,
+          "description": "Controls the maximum number of problems produced by the server."
+        }
       }
-    }
+    },
+    "languages": [
+      {
+        "id": "yaml",
+        "extensions": [
+          ".yaml",
+          ".yml"
+        ],
+        "aliases": [
+          "YAML",
+          "yml"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ]
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
@@ -36,5 +47,6 @@
   "devDependencies": {
     "@types/node": "^20.5.7",
     "typescript": "^5.2.2"
-  }
+  },
+  "dependencies": {}
 }
