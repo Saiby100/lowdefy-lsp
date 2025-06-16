@@ -1,6 +1,7 @@
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import ServerContext from '../../../types/server-context';
 import { Diagnostic } from 'vscode-languageserver';
+import getBlocks from './getBlocks';
 
 function getDocumentSettings(
   { connection, capabilities, documentSettings }: ServerContext,
@@ -20,13 +21,21 @@ function getDocumentSettings(
   return result;
 }
 
-function validateDocument(context: ServerContext, document: TextDocument) {
-  let settings = getDocumentSettings(context, document.uri);
-  const diagnostics: Diagnostic[] = [];
-  // TODO: Validate text document based on settings
-  // console.log('Validating document:', settings, document.uri);
+function validateDocument(
+  { connection, parsedDocuments, validate }: ServerContext,
+  document: TextDocument
+) {
+  const parsedDoc = parsedDocuments.get(document.uri);
+  if (!parsedDoc) return;
 
-  context.connection.sendDiagnostics({ uri: document.uri, diagnostics });
+  const blocks = getBlocks(parsedDoc);
+  blocks.forEach((block) => {
+    const lowdefyType = block.type ?? Object.keys(block)[0];
+    validate(lowdefyType, block);
+  });
+  const diagnostics: Diagnostic[] = [];
+
+  connection.sendDiagnostics({ uri: document.uri, diagnostics });
 }
 
 export default validateDocument;

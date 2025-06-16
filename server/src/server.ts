@@ -12,6 +12,7 @@ import {
 } from './handlers/connection';
 
 import { onDidChangeContent, onDidClose } from './handlers/document';
+import createValidate from './handlers/shared/validate/createValidate';
 
 const connection = createConnection(ProposedFeatures.all);
 const documents = new TextDocuments(TextDocument);
@@ -21,6 +22,7 @@ const context: ServerContext = {
   parsedDocuments: new Map(),
   capabilities: {},
   documentSettings: new Map(),
+  validate: createValidate(),
 };
 
 documents.onDidClose(onDidClose(context));

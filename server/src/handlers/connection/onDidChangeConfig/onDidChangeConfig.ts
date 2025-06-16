@@ -1,6 +1,6 @@
 import DocumentSettings from '../../../types/document-settings';
 import ServerContext from '../../../types/server-context';
-import validateDocument from '../../shared/utils/validateDocument';
+import validateDocument from '../../shared/validate/validateDocument';
 
 const defaultSettings: DocumentSettings = {
   maxNumberOfProblems: 1000,
