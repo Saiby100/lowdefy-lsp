@@ -1,98 +1,130 @@
-# Minimum Viable VS Code Language Server Extension
+# Lowdefy LSP Extension - Architecture Overview
 
-NOTE: This is heavily based on [lsp-sample from vscode-extension-samples][sample] with the goal of removing example-specific code to ease starting a new Language Server.
+This document provides an overview of how the VS Code LSP extension for Lowdefy works.
 
-This project aims to provide a starting point for developing a self-contained Language Server Extension for VS Code using TypeScript.
+## Architecture Overview
 
-"Self-contained" in this context means that this extension bundles its own language server code rather than wrapping an existing language server executable.
+This is a standard **VS Code Language Server Protocol (LSP)** extension with two main parts:
 
-As an MVP, this omits
+### 1. Client (`client/src/extension.ts`)
 
-- linting
-- testing
-- behavior in the language server itself (besides connecting and listening to document changes)
+The client is a VS Code extension that:
 
-## Getting Started
-
-1. Clone this repo
-2. Replace items in `package.json` marked `REPLACE_ME` with text related to your extension
-3. Do the same for `client/package.json` and `server/package.json`
-4. Do the same in `client/src/extension.ts`
-5. Run `npm install` from the repo root.
-
-To make it easy to get started, this language server will run on _every_ file type by default. To target specific languages, change
-
-`package.json`'s `activationEvents` to something like
+- Launches the language server as a child process
+- Communicates via **IPC** (Inter-Process Communication)
+- Watches YAML files (`.yaml`, `.yml`)
 
 ```
-"activationEvents": [
-  "onLanguage:plaintext"
-],
+activate() → Create LanguageClient → Start server
+deactivate() → Stop client gracefully
 ```
 
-And change the `documentSelector` in `client/src/extension.ts` to replace the `*` (e.g.)
+### 2. Server (`server/src/server.ts`)
 
-```
-documentSelector: [{ scheme: "file", language: "plaintext" }],
-```
-
-## Developing your extension
-
-To help verify everything is working properly, we've included the following code in `server.ts` after the `onInitialize` function:
+The server handles all the "smart" features. It initializes a **ServerContext** that gets passed to all handlers:
 
 ```typescript
-documents.onDidChangeContent((change) => {
-  connection.window.showInformationMessage(
-    "onDidChangeContent: " + change.document.uri
-  );
-});
+interface ServerContext {
+  connection: Connection; // LSP connection
+  documents: TextDocuments; // Managed text documents
+  parsedDocuments: Map<uri, Document>; // Cached YAML ASTs
+  validate: (type, value) => any; // AJV schema validator
+}
 ```
 
-From the root directory of this project, run `code .` Then in VS Code
+## Handler Architecture
 
-1. Build the extension (both client and server) with `⌘+shift+B` (or `ctrl+shift+B` on windows)
-2. Open the Run and Debug view and press "Launch Client" (or press `F5`). This will open a `[Extension Development Host]` VS Code window.
-3. Opening or editing a file in that window should show an information message in VS Code like you see below.
+All handlers are **curried functions**:
 
-   ![example information message](https://semanticart.com/misc-images/minimum-viable-vscode-language-server-extension-info-message.png)
-
-4. Edits made to your `server.ts` will be rebuilt immediately but you'll need to "Launch Client" again (`⌘-shift-F5`) from the primary VS Code window to see the impact of your changes.
-
-[Debugging instructions can be found here][debug]
-
-## Distributing your extension
-
-Read the full [Publishing Extensions doc][publish] for the full details.
-
-Note that you can package and distribute a standalone `.vsix` file without publishing it to the marketplace by following [these instructions][vsix].
-
-## Anatomy
-
-```
-.
-├── .vscode
-│   ├── launch.json         // Tells VS Code how to launch our extension
-│   └── tasks.json          // Tells VS Code how to build our extension
-├── LICENSE
-├── README.md
-├── client
-│   ├── package-lock.json   // Client dependencies lock file
-│   ├── package.json        // Client manifest
-│   ├── src
-│   │   └── extension.ts    // Code to tell VS Code how to run our language server
-│   └── tsconfig.json       // TypeScript config for the client
-├── package-lock.json       // Top-level Dependencies lock file
-├── package.json            // Top-level manifest
-├── server
-│   ├── package-lock.json   // Server dependencies lock file
-│   ├── package.json        // Server manifest
-│   ├── src
-│   │   └── server.ts       // Language server code
-│   └── tsconfig.json       // TypeScript config for the client
-└── tsconfig.json           // Top-level TypeScript config
+```typescript
+function handler(context: ServerContext) {
+  return (params: Params): Result => {
+    /* use context */
+  };
+}
 ```
 
-[debug]: https://code.visualstudio.com/api/language-extensions/language-server-extension-guide#debugging-both-client-and-server
-[sample]: https://github.com/microsoft/vscode-extension-samples/tree/main/lsp-sample
-[publish]: https://code.visualstudio.com/api/working-with-extensions/publishing-extension
-[vsix]: https://code.visualstudio.com/api/working-with-extensions/publishing-extension#packaging-extensions
+### Connection Handlers (`server/src/handlers/connection/`)
+
+- **onInitialize** - Negotiates capabilities (completion, sync mode)
+- **onCompletion** - Main feature: generates context-aware completions
+- **onCompletionResolve** - Resolves additional completion details
+
+### Document Handlers (`server/src/handlers/document/`)
+
+- **onDidChangeContent** - Parses YAML, caches AST, runs validation
+- **onDidClose** - Cleans up cached data
+
+## Completion System Flow
+
+The completion system (`server/src/handlers/connection/onCompletion/`) works like this:
+
+```
+User types → getCursorContext() → getSuggestions() → CompletionItems
+```
+
+### 1. getCursorContext (`cursor/` utilities)
+
+Analyzes YAML AST to find:
+
+- `keys` - Ancestor keys like `['blocks', '0', 'properties']`
+- `blockKeys` - Block path like `['Button', 'properties']`
+- `sequenceKey` - Array context (e.g., `'blocks'`)
+- `currentObject` - The current block being edited
+
+### 2. getSuggestions (`suggestions/`)
+
+Priority-based completion:
+
+1. Block schema properties (from JSON schemas)
+2. Default fields (`id`, `type`)
+3. Operators (`_get`, `_switch`, etc.)
+4. Actions, Connections, Blocks
+
+### 3. Formatters (`formatters/`)
+
+Convert data to `CompletionItem[]`
+
+## Validation System
+
+Located in `server/src/handlers/shared/validate/`:
+
+1. **getBlocks** - Extracts all `{id, type}` objects from YAML
+2. **getSchema** - Loads JSON schema from `resources/schemas/blocks/`
+3. **AJV validation** - Validates blocks against schemas (cached)
+4. Sends diagnostics back to the client
+
+## Resources (`server/src/resources/`)
+
+- **docs/** - JSON files with documentation (actions, blocks, connections, operators)
+- **schemas/blocks/** - JSON schemas for each block type (Button.json, Input.json, etc.)
+
+## Data Flow Summary
+
+```
+Editor → Client → IPC → Server
+                         ├── onDidChangeContent → Parse YAML → Validate → Diagnostics
+                         └── onCompletion → getCursorContext → getSuggestions → CompletionItems
+```
+
+## Key Files Reference
+
+| File                                                              | Purpose                         |
+| ----------------------------------------------------------------- | ------------------------------- |
+| `client/src/extension.ts`                                         | VS Code extension entry point   |
+| `server/src/server.ts`                                            | Language server entry point     |
+| `server/src/types/server-context.ts`                              | ServerContext type definition   |
+| `server/src/handlers/connection/onCompletion/`                    | Completion logic                |
+| `server/src/handlers/connection/onCompletion/getCursorContext.ts` | YAML cursor analysis            |
+| `server/src/handlers/connection/onCompletion/suggestions/`        | Completion suggestions          |
+| `server/src/handlers/connection/onCompletion/formatters/`         | CompletionItem formatting       |
+| `server/src/handlers/shared/validate/`                            | Document validation             |
+| `server/src/resources/docs/`                                      | Lowdefy component documentation |
+| `server/src/resources/schemas/blocks/`                            | JSON schemas for blocks         |
+
+## Development Workflow
+
+1. Run `npm run watch` or press `Cmd+Shift+B` to start TypeScript compiler in watch mode
+2. Press F5 to launch Extension Development Host
+3. Edit YAML files in the host to test
+4. After server changes, restart with `Cmd+Shift+F5`
