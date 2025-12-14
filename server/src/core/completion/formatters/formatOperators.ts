@@ -2,7 +2,7 @@ import { CompletionItem, CompletionItemKind } from 'vscode-languageserver';
 
 import { Operators } from '../types/operator';
 
-import operatorsJson from '../../../../resources/docs/operators.json';
+import operatorsJson from '../../../resources/docs/operators.json';
 
 // Cast json to type
 const operators: Operators = operatorsJson;

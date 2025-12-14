@@ -1,6 +1,6 @@
 import { CompletionItem, CompletionItemKind } from 'vscode-languageserver';
 
-import connectionsJson from '../../../../resources/docs/connections.json';
+import connectionsJson from '../../../resources/docs/connections.json';
 import { Connection } from '../types/connection';
 
 const connections: Connection = connectionsJson;

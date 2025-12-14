@@ -8,7 +8,7 @@ function getSchema(lowdefyType: string): JSON | undefined {
   for (const schemaType of schemaTypes) {
     const filePath = path.join(
       __dirname,
-      `../../../resources/schemas/${schemaType}/${lowdefyType}.json`
+      `../../resources/schemas/${schemaType}/${lowdefyType}.json`
     );
     if (fs.existsSync(filePath)) {
       console.log('Schema found for type:', lowdefyType);

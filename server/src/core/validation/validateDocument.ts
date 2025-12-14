@@ -1,5 +1,5 @@
 import { TextDocument } from 'vscode-languageserver-textdocument';
-import ServerContext from '../../../types/server-context';
+import ServerContext from '../../types/server-context';
 import { parseDocument } from 'yaml';
 import validateBlockSchema from './validateBlockSchema';
 

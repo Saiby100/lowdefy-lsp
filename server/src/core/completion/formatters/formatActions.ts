@@ -1,6 +1,6 @@
 import { CompletionItem, CompletionItemKind } from 'vscode-languageserver';
 
-import actionsJson from '../../../../resources/docs/actions.json';
+import actionsJson from '../../../resources/docs/actions.json';
 import { Action } from '../types/action';
 
 const actions: Action = actionsJson;

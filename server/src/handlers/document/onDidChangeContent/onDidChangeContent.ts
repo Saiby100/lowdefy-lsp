@@ -1,5 +1,5 @@
 import ServerContext from '../../../types/server-context';
-import validateDocument from '../../shared/validate/validateDocument';
+import { validateDocument } from '../../../core/validation';
 import { parseDocument } from 'yaml';
 
 function onDidChangeContent(context: ServerContext) {

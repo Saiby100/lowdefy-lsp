@@ -1,7 +1,7 @@
 import { CompletionItem, TextDocumentPositionParams } from 'vscode-languageserver';
 import ServerContext from '../../../types/server-context';
 
-import getCompletions from './getCompletions';
+import { getCompletions } from '../../../core/completion';
 
 function onCompletion({ documents, parsedDocuments }: ServerContext) {
   return (params: TextDocumentPositionParams): CompletionItem[] => {

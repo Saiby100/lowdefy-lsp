@@ -185,7 +185,7 @@ function transformBlockSchema(
 }
 
 function formatBlockSchemas(): Record<string, any> {
-  const BASE_DIR = path.join(__dirname, '../../../../resources/schemas/blocks');
+  const BASE_DIR = path.join(__dirname, '../../../resources/schemas/blocks');
   const schema: Record<string, any> = {};
 
   const blockSchema = fs.readdirSync(BASE_DIR);
