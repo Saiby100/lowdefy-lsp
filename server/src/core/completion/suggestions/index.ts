@@ -1,27 +1,39 @@
 import { CompletionItem } from 'vscode-languageserver';
-import { CursorContext } from '../types/cursor-context';
 
-import suggestActions from './suggestActions';
-import suggestConnections from './suggestConnections';
-import suggestMethods from './suggestMethods';
-import suggestOperators from './suggestOperators';
-import suggestBlocks from './suggestBlocks';
-import suggestBlockSchema from './suggestBlockSchema';
-import suggestDefaults from './suggestDefaults';
+import { SuggestionContext } from '../types/suggestion-context';
+import {
+  formatActions,
+  formatBlocks,
+  formatConnections,
+  formatDefaults,
+  formatMethods,
+  formatOperators,
+} from '../formatters';
 
-export default function getSuggestions(cursorContext: CursorContext): CompletionItem[] {
-  const actions = suggestActions(cursorContext);
-  const connections = suggestConnections(cursorContext);
-  const methods = suggestMethods(cursorContext);
-  const operators = suggestOperators(cursorContext);
-  const blocks = suggestBlocks(cursorContext);
-  const blockSchema = suggestBlockSchema(cursorContext);
-  const defaults = suggestDefaults(cursorContext);
+const lowdefyActions = formatActions();
+const lowdefyBlocks = formatBlocks();
+const lowdefyConnections = formatConnections();
+const lowdefyDefaults = formatDefaults();
+const lowdefyMethods = formatMethods();
+const lowdefyOperators = formatOperators();
 
-  if (blockSchema.length > 0) return blockSchema;
-  if (defaults.length > 0) return defaults;
-  if (operators.length > 0) return operators;
-  if (methods.length > 0) return methods;
-
-  return [...actions, ...connections, ...blocks];
+export default function getSuggestions(cursorContext: SuggestionContext): CompletionItem[] {
+  switch (cursorContext.suggestionType) {
+    case 'action':
+      return lowdefyActions;
+    case 'connection':
+      return lowdefyConnections;
+    case 'method':
+      return lowdefyMethods[cursorContext.meta.operator] || [];
+    case 'operator':
+      return lowdefyOperators;
+    case 'block':
+      return lowdefyBlocks;
+    case 'block_default':
+      return lowdefyDefaults['block_default'];
+    case 'plugin_default':
+      return lowdefyDefaults['plugin_default'];
+    default:
+      return [];
+  }
 }
