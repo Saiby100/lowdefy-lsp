@@ -1,19 +1,23 @@
 import { CompletionItem } from 'vscode-languageserver';
 import { Position } from 'vscode-languageserver-textdocument';
 
-import getCursorContext from './getCursorContext';
+import getSuggestionContext from './getSuggestionContext';
 import { Document } from 'yaml';
 import getSuggestions from './suggestions';
+import { SuggestionContext } from './types/suggestion-context';
 
 function getCompletions(
   documentText: string,
   documentJSON: Document.Parsed,
   position: Position
 ): CompletionItem[] {
-  const cursorContext = getCursorContext(documentText, documentJSON, position);
-  const suggestions = getSuggestions(cursorContext);
+  const suggestionContext = getSuggestionContext(
+    documentText,
+    documentJSON,
+    position
+  ) as SuggestionContext;
+  const suggestions = getSuggestions(suggestionContext);
 
-  // console.log('cursorContext', cursorContext);
   return suggestions;
 }
 

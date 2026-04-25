@@ -106,7 +106,6 @@
         "description": "Disable the block if true."
       },
       "options": {
-        "default": [],
         "oneOf": [
           {
             "type": "array",
